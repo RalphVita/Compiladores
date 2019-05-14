@@ -12,7 +12,7 @@
 #define SYMBOL_TABLE_MAX_SIZE 100
 
 typedef struct {
-  char name[SYMBOL_MAX_SIZE];
+  char* name;
   int line;
   int aridade;
 } funcao;
