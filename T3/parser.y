@@ -12,9 +12,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "tables.h"
-#include "parser.h"
-
+#include "./hash/tables.h"
 
 int yylex();
 void yyerror(const char *s);
@@ -29,83 +27,70 @@ SymTable* st;
 
 %}
 
-%token IF THEN ELSE END REPEAT UNTIL READ WRITE INT PUTS STRING
-%token SEMI LPAREN RPAREN
+%token ELSE IF INPUT INT OUTPUT RETURN VOID WHILE WRITE
 %token ASSIGN
+%token SEMI COMMA LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE 
+%token NUM ID STRING
 
-%token NUM
-%token ID
-
-%left LT EQ
-// Precedence of operators (* and / have higher precedence).
-// All four operators are left associative.
-%left PLUS MINUS
-%left TIMES OVER
-
-// Start symbol for the grammar.
-%start program
-
+%left LT LE GT GE EQ NEQ
+%left PLUS MINUS  /* Ops associativos a esquerda. */
+%left TIMES OVER  /* Mais para baixo, maior precedencia. */
 %%
 
-program:
-  stmt_sequence
+program: func_decl_list;
+
+func_decl_list:
+	func_decl_list func_decl
+| 	func_decl
 ;
 
-stmt_sequence:
-  stmt_sequence stmt
-| stmt
-;
+func_decl: func_header func_body;
+func_header: ret_type ID LPAREN params RPAREN;
+func_body: LBRACE opt_var_decl opt_stmt_list RBRACE;
+opt_var_decl: %empty | var_decl_list;
+opt_stmt_list: %empty | stmt_list;
+ret_type: INT | VOID;
+params: VOID | param_list;
+param_list: param_list COMMA param | param;
+param: INT ID | INT ID LBRACK RBRACK;
+var_decl_list: var_decl_list var_decl | var_decl;
+var_decl: INT ID SEMI | INT ID LBRACK NUM RBRACK SEMI;
+stmt_list: stmt_list stmt | stmt;
+stmt: assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
+assign_stmt: lval ASSIGN arith_expr SEMI;
 
-stmt:
-  if_stmt
-| repeat_stmt
-| assign_stmt
-| read_stmt
-| write_stmt
-| var_decl
-| puts_stmt
+lval: ID | ID LBRACK NUM RBRACK | ID LBRACK ID RBRACK;
+if_stmt: IF LPAREN bool_expr RPAREN block | IF LPAREN bool_expr RPAREN block ELSE block;
+block: LBRACE opt_stmt_list RBRACE;
+while_stmt: WHILE LPAREN bool_expr RPAREN block;
+return_stmt: RETURN SEMI | RETURN arith_expr SEMI;
+func_call: output_call | write_call | user_func_call;
+input_call: INPUT LPAREN RPAREN;
+output_call: OUTPUT LPAREN arith_expr RPAREN;
+write_call: WRITE LPAREN STRING RPAREN;
+user_func_call: ID LPAREN opt_arg_list RPAREN;
+opt_arg_list: %empty | arg_list;
+arg_list: arg_list COMMA arith_expr | arith_expr;
+bool_expr: arith_expr LT arith_expr 
+| arith_expr LE arith_expr 
+| arith_expr GT arith_expr
+| arith_expr GE arith_expr 
+| arith_expr EQ arith_expr 
+| arith_expr NEQ arith_expr
 ;
-
-if_stmt:
-  IF expr THEN stmt_sequence END
-| IF expr THEN stmt_sequence ELSE stmt_sequence END
-;
-
-repeat_stmt:
-  REPEAT stmt_sequence UNTIL expr
-;
-
-assign_stmt:
-  ID{ValidarUtilizarVariavel();} ASSIGN expr SEMI
-;
-
-read_stmt:
-  READ ID{ValidarUtilizarVariavel();} SEMI
-;
-
-write_stmt:
-  WRITE expr SEMI
-;
-
-expr:
-  expr LT expr
-| expr EQ expr
-| expr PLUS expr
-| expr MINUS expr
-| expr TIMES expr
-| expr OVER expr
-| LPAREN expr RPAREN
+arith_expr: arith_expr PLUS arith_expr 
+| arith_expr MINUS arith_expr
+| arith_expr TIMES arith_expr 
+| arith_expr OVER arith_expr
+| LPAREN arith_expr RPAREN 
+| lval 
+| input_call 
+| user_func_call 
 | NUM
-| ID{ValidarUtilizarVariavel();}
 ;
-
-var_decl:INT ID{ValidarDeclararVarivel();} SEMI;
-puts_stmt:PUTS STRING {add_literal(lt,yytext); printf("PUTS: %s.\n",yytext);} SEMI;
-
 
 %%
 
-// Error handling.
 void yyerror (char const *s) {
     printf("PARSE ERROR (%d): %s\n", yylineno, s);
 }
@@ -126,6 +111,7 @@ void ValidarUtilizarVariavel(){
 		exit(1);
 	}
 }
+
 
 // Main.
 int main() {

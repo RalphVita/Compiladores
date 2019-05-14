@@ -2,51 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "tables.h"
+#include "funcoes.h"
 
-// Literals Table
-// ----------------------------------------------------------------------------
-
-#define LITERAL_MAX_SIZE 128
-#define LITERALS_TABLE_MAX_SIZE 100
-
-struct lit_table {
-    char t[LITERALS_TABLE_MAX_SIZE][LITERAL_MAX_SIZE];
-    int size;
-};
-
-LitTable* create_lit_table() {
-    LitTable *lt = malloc(sizeof * lt);
-    lt->size = 0;
-    return lt;
-}
-
-int add_literal(LitTable* lt, char* s) {
-    for (int i = 0; i < lt->size; i++) {
-        if (strcmp(lt->t[i], s) == 0) {
-            return i;
-        }
-    }
-    strcpy(lt->t[lt->size], s);
-    int idx_added = lt->size;
-    lt->size++;
-    return idx_added;
-}
-
-char* get_literal(LitTable* lt, int i) {
-    return lt->t[i];
-}
-
-void print_lit_table(LitTable* lt) {
-    printf("Literals table:\n");
-    for (int i = 0; i < lt->size; i++) {
-        printf("Entry %d -- %s\n", i, get_literal(lt, i));
-    }
-}
-
-void free_lit_table(LitTable* lt) {
-    free(lt);
-}
 
 // Symbols Table
 // ----------------------------------------------------------------------------
@@ -57,7 +14,8 @@ void free_lit_table(LitTable* lt) {
 typedef struct {
   char name[SYMBOL_MAX_SIZE];
   int line;
-} Entry;
+  int aridade;
+} funcao;
 
 struct sym_table {
     Entry t[SYMBOL_TABLE_MAX_SIZE];

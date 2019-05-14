@@ -11,8 +11,8 @@ bison: parser.y
 flex: scanner.l
 	flex scanner.l
 	
-gcc: tables.c scanner.c parser.c 
-	gcc -Wall -o $(Exec) tables.c scanner.c parser.c -ly -lm	 
+gcc: ./hash/tables.c scanner.c parser.c 
+	gcc -Wall -o $(Exec) ./hash/tables.c scanner.c parser.c -ly -lm	 
 
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm

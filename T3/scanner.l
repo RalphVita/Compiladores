@@ -5,8 +5,9 @@
 %option yylineno
 
 %{
-#include <math.h>
+
 #include "parser.h"
+
 #define process_token(type) if(!comentario) return type
 void Token(int line, char*  text, char *type) ;
 int comentario = 0;
@@ -60,5 +61,6 @@ write		{ process_token(WRITE); }
 {numero}	{ process_token(NUM); }
 {id}  		{ process_token(ID); }
 \".*\"		{ process_token(STRING); }
-.			{ if(!comentario) {printf("SCANNING ERROR (%d): Unknown symbol %s\n", yylineno, yytext); exit(1); }}
+.           { printf("SCANNING ERROR (%d): Unknown symbol %s\n", yylineno, yytext); exit(1); }
+
 %%
