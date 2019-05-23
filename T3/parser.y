@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "./hash/tables.h"
+#include "./entity/variavel.h"
 
 int yylex();
 void yyerror(const char *s);
@@ -54,7 +55,11 @@ params: VOID | param_list;
 param_list: param_list COMMA param | param;
 param: INT ID | INT ID LBRACK RBRACK;
 var_decl_list: var_decl_list var_decl | var_decl;
-var_decl: INT ID SEMI | INT ID LBRACK NUM RBRACK SEMI;
+var_decl: var_decl_1 SEMI | var_decl_1 LBRACK NUM RBRACK SEMI;
+
+var_decl_1: INT ID{ValidarDeclararVarivel();};
+
+
 stmt_list: stmt_list stmt | stmt;
 stmt: assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
 assign_stmt: lval ASSIGN arith_expr SEMI;
@@ -97,10 +102,14 @@ void yyerror (char const *s) {
 
 void ValidarDeclararVarivel(){
 	int index = lookup_var(st,yytext);
-	if(index < 0) 
-		add_var(st,yytext,yylineno); 
+	
+	if(index < 0) {
+		Variavel* v = create_variavel(yytext,yylineno,0,0);
+		add_var(st,yytext,v); 
+	}
 	else{ 
-		printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",yylineno,yytext,get_line(st,index));
+		Variavel* v = (Variavel*)get_data(st,index);
+		printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",yylineno,yytext,v->line);
 		exit(1);
 	}
 }
@@ -124,7 +133,7 @@ int main() {
         printf("\n\n");
         print_lit_table(lt);
 	    printf("\n\n");
-	    print_sym_table(st);
+	    print_sym_table(st, print_variavel);
     }
     
     free_lit_table(lt);

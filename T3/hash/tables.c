@@ -56,13 +56,11 @@ void free_lit_table(LitTable* lt) {
 
 typedef struct {
   char name[SYMBOL_MAX_SIZE];
-  int line;
+  void*data;
 } Entry;
 
 struct sym_table {
-    //Entry t[SYMBOL_TABLE_MAX_SIZE];
-    void*data[SYMBOL_TABLE_MAX_SIZE];
-    char*lookup(void*);
+    Entry t[SYMBOL_TABLE_MAX_SIZE];
     int size;
 };
 
@@ -74,16 +72,16 @@ SymTable* create_sym_table() {
 
 int lookup_var(SymTable* st, char* s) {
      for (int i = 0; i < st->size; i++) {
-        if (strcmp(lookup(st->data[i]), s) == 0)  {
+        if (strcmp(st->t[i].name, s) == 0)  {
             return i;
         }
     }
     return -1;
 }
 
-int add_var(SymTable* st, char* s, int line) {
+int add_var(SymTable* st, char* s, void* data) {
     strcpy(st->t[st->size].name, s);
-    st->t[st->size].line = line;
+    st->t[st->size].data = data;
     int idx_added = st->size;
     st->size++;
     return idx_added;
@@ -93,14 +91,15 @@ char* get_name(SymTable* st, int i) {
     return st->t[i].name;
 }
 
-int get_line(SymTable* st, int i) {
-    return st->t[i].line;
+void* get_data(SymTable* st, int i) {
+    return st->t[i].data;
 }
 
-void print_sym_table(SymTable* st) {
+void print_sym_table(SymTable* st, void* call_Print(void*)) {
     printf("Symbols table:\n");
     for (int i = 0; i < st->size; i++) {
-         printf("Entry %d -- name: %s, line: %d\n", i, get_name(st, i), get_line(st, i));
+         //printf("Entry %d -- name: %s, line: \n", i, get_name(st, i)/*, get_line(st, i)*/);
+         call_Print(get_data(st, i));
     }
 }
 

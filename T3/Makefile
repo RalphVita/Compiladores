@@ -1,7 +1,7 @@
-File=c06
+File=c02
 Exec=aula8
-FolderOut=out8
-FolderIn=in
+FolderOut=test/out3
+FolderIn=test/in
 
 all: bison flex gcc
 
@@ -11,14 +11,14 @@ bison: parser.y
 flex: scanner.l
 	flex scanner.l
 	
-gcc: ./hash/tables.c scanner.c parser.c 
-	gcc -Wall -o $(Exec) ./hash/tables.c scanner.c parser.c -ly -lm	 
+gcc: ./entity/variavel.h ./hash/tables.c scanner.c parser.c 
+	gcc -Wall -o $(Exec) ./entity/variavel.c ./hash/tables.c scanner.c parser.c -ly -lm	 
 
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
 
 clean:
-	rm -f *.out parser.h parser.c $(Exec)
+	rm -f *.out scanner.c parser.h parser.c $(Exec)
 
 diff:
 	./$(Exec) < ./$(FolderIn)/$(File).cm | diff ./$(FolderOut)/$(File).out -
