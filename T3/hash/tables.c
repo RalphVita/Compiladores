@@ -95,7 +95,7 @@ void* get_data(SymTable* st, int i) {
     return st->t[i].data;
 }
 
-void print_sym_table(SymTable* st, void* call_Print(void*)) {
+void print_sym_table(SymTable* st, void call_Print(void*)) {
     printf("Symbols table:\n");
     for (int i = 0; i < st->size; i++) {
          //printf("Entry %d -- name: %s, line: \n", i, get_name(st, i)/*, get_line(st, i)*/);

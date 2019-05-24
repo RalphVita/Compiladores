@@ -1,4 +1,3 @@
-
 #ifndef VARIAVEIS_H
 #define VARIAVEIS_H
 
@@ -10,7 +9,7 @@ struct variavel{
   char name[100];
   int line;
   int escopo;
-  int tamanho
+  int tamanho;
 };
 
 

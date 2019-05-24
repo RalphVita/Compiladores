@@ -1,46 +1,21 @@
 
-#ifndef FUNCOES_H
-#define FUNCOES_H
+#ifndef FUNCAO_H
+#define FUNCAO_H
 
 
-struct funcoes;
-typedef struct funcoes FuncoesTable;
+struct funcao;
+typedef struct funcao Funcao;
 
-FuncoesTable* create_FuncoesTable();
-
-
-
-// Symbols Table
-// ----------------------------------------------------------------------------
-
-// Opaque structure.
-// For simplicity, the table is implemented as a sequential list.
-// This table only stores the variable name and the declaration line.
-struct sym_table;
-typedef struct sym_table SymTable;
-
-// Creates an empty symbol table.
-SymTable* create_sym_table();
+struct funcao{
+  char name[100];
+  int line;
+  int aridade;
+};
 
 
-int add_funcao(SymTable* st, char* name, int line, int aridade);
+Funcao* create_funcao(char *name, int line, int aridade);
 
+void print_funcao(Funcao *f);
 
-int lookup_var(SymTable* st, char* names);
-
-// Returns the variable name stored at the given index.
-// No check is made by this function, so make sure that the index is valid first.
-char* get_name(SymTable* st, int i);
-
-// Returns the declaration line of the variable stored at the given index.
-// No check is made by this function, so make sure that the index is valid first.
-int get_line(SymTable* st, int i);
-
-// Prints the given table to stdout.
-void print_sym_table(SymTable* st);
-
-// Clears the allocated structure.
-void free_sym_table(SymTable* st);
-
-#endif // TABLES_H
+#endif // FUNCAO_H
 
