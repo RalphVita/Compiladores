@@ -1,4 +1,4 @@
-File=c02
+File=c11
 Exec=aula8
 FolderOut=test/out3
 FolderIn=test/in
@@ -11,8 +11,8 @@ bison: parser.y
 flex: scanner.l
 	flex scanner.l
 	
-gcc: ./entity/variavel.h ./hash/tables.c scanner.c parser.c 
-	gcc -Wall -o $(Exec) ./entity/variavel.c ./hash/tables.c scanner.c parser.c -ly -lm	 
+gcc: menssagem.h ./entity/funcao.h ./entity/variavel.h ./hash/tables.c scanner.c parser.c 
+	gcc -Wall -o $(Exec) ./entity/funcao.c ./entity/variavel.c ./hash/tables.c scanner.c parser.c -ly -lm	 
 
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm

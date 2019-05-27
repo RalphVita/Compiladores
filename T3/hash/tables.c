@@ -95,6 +95,10 @@ void* get_data(SymTable* st, int i) {
     return st->t[i].data;
 }
 
+void* last_data(SymTable* st){
+	return st->t[st->size - 1].data;
+}
+
 void print_sym_table(SymTable* st, void call_Print(void*)) {
     printf("Symbols table:\n");
     for (int i = 0; i < st->size; i++) {
@@ -104,5 +108,8 @@ void print_sym_table(SymTable* st, void call_Print(void*)) {
 }
 
 void free_sym_table(SymTable* st) {
+	for (int i = 0; i < st->size; i++) {
+		free(st->t[i].data);
+	}
     free(st);
 }

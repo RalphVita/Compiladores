@@ -7,6 +7,7 @@
 %{
 
 #include "parser.h"
+#include "menssagem.h"
 
 #define process_token(type) if(!comentario) return type
 void Token(int line, char*  text, char *type) ;
@@ -61,6 +62,6 @@ write		{ process_token(WRITE); }
 {numero}	{ process_token(NUM); }
 {id}  		{ process_token(ID); }
 \".*\"		{ process_token(STRING); }
-.			{ if(!comentario) {printf("SCANNING ERROR (%d): Unknown symbol %s\n", yylineno, yytext); exit(1); }}
+.			{ if(!comentario) {printf(MSG_002, yylineno, yytext); exit(1); }}
 
 %%

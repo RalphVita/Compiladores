@@ -56,6 +56,8 @@ char* get_name(SymTable* st, int i);
 // No check is made by this function, so make sure that the index is valid first.
 void* get_data(SymTable* st, int i);
 
+void* last_data(SymTable* st);
+
 // Prints the given table to stdout.
 //void print_sym_table(SymTable* st);
 void print_sym_table(SymTable* st, void call_Print(void*));
