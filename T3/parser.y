@@ -21,7 +21,7 @@ int yylex();
 void yyerror(const char *s);
 
 
-void finalizar();
+void finalizar(int erro);
 
 extern int yylineno;
 extern char* yytext;
@@ -29,10 +29,6 @@ extern char text_id[100];
 
 
 LitTable* lt;
-
-
-
-
 %}
 
 %token ELSE IF INPUT INT OUTPUT RETURN VOID WHILE WRITE
@@ -112,14 +108,14 @@ void yyerror (char const *s) {
     printf("PARSE ERROR (%d): %s\n", yylineno, s);
 }
 
-
-
-
-void finalizar(){
+//Liberar memória e finaliza
+void finalizar(int erro){
 	free_lit_table(lt);
     free_sym_table(variaveis);
     free_sym_table(funcoes);
-    exit(1);
+    
+    if(erro)
+    	exit(erro);
 }
 
 
@@ -133,17 +129,23 @@ int main() {
     int ret = yyparse();
 
     if (ret == 0) {
-        printf("PARSE SUCCESSFUL!\n");
+        printf(MSG_001);
         printf("\n");
+        
+        //Writes
         print_lit_table(lt);
 	    printf("\n\n");
+	    
+	    //Variaveis
 	    printf("Variables table:\n");
 	    print_sym_table(variaveis, print_variavel);
 	    printf("\n\n");
+	    
+	    //Funções
 	    printf("Functions table:\n");
 	    print_sym_table(funcoes, print_funcao);
     }
     
-    finalizar();
+    finalizar(0);
     return 0;
 }
