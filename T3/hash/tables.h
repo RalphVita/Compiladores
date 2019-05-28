@@ -60,7 +60,7 @@ void* last_data(SymTable* st);
 
 // Prints the given table to stdout.
 //void print_sym_table(SymTable* st);
-void print_sym_table(SymTable* st, void call_Print(void*));
+void print_sym_table(SymTable* st, void call_Print(void*,int));
 
 // Clears the allocated structure.
 void free_sym_table(SymTable* st);

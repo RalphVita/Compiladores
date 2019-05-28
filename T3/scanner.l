@@ -12,6 +12,7 @@
 #define process_token(type) if(!comentario) return type
 void Token(int line, char*  text, char *type) ;
 int comentario = 0;
+char text_id[100];
 %}
 
 
@@ -60,7 +61,7 @@ write		{ process_token(WRITE); }
 \}			{ process_token(RBRACE); } 
 
 {numero}	{ process_token(NUM); }
-{id}  		{ process_token(ID); }
+{id}  		{ strcpy(text_id,yytext);process_token(ID); }
 \".*\"		{ process_token(STRING); }
 .			{ if(!comentario) {printf(MSG_002, yylineno, yytext); exit(1); }}
 

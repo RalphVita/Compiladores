@@ -19,20 +19,19 @@
 
 int yylex();
 void yyerror(const char *s);
-void ValidarDeclararVarivel();
-void ValidarUtilizarVariavel();
-void declarar_funcao();
+
+
 void finalizar();
 
 extern int yylineno;
 extern char* yytext;
+extern char text_id[100];
+
 
 LitTable* lt;
-SymTable* variaveis;
-SymTable* funcoes;
 
-int aridade;
-int escopo;
+
+
 
 %}
 
@@ -62,20 +61,22 @@ opt_stmt_list: %empty | stmt_list;
 ret_type: INT | VOID;
 params: VOID | param_list;
 param_list: param_list COMMA param | param;
-param: param_1 | param_1 LBRACK RBRACK;
-param_1: INT ID {aridade++;};
+param: param_1 | param_1 LBRACK RBRACK{((Variavel*)last_data(variaveis))->tamanho = -1;};
+param_1: INT ID {aridade++;declarar_variavel();};
 
 var_decl_list: var_decl_list var_decl | var_decl;
-var_decl: var_decl_1 SEMI | var_decl_1 LBRACK NUM RBRACK SEMI;
+var_decl: var_decl_1 SEMI | var_decl_1 LBRACK NUM{((Variavel*)last_data(variaveis))->tamanho = atoi(yytext);} RBRACK SEMI;
 
-var_decl_1: INT ID{ValidarDeclararVarivel();};
+var_decl_1: INT ID{declarar_variavel();};
 
 
 stmt_list: stmt_list stmt | stmt;
 stmt: assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
 assign_stmt: lval ASSIGN arith_expr SEMI;
 
-lval: ID | ID LBRACK NUM RBRACK | ID LBRACK ID RBRACK;
+lval: lval_1 | lval_1 LBRACK NUM RBRACK | lval_1 LBRACK ID RBRACK;
+lval_1: ID{utilizar_variavel();};
+
 if_stmt: IF LPAREN bool_expr RPAREN block | IF LPAREN bool_expr RPAREN block ELSE block;
 block: LBRACE opt_stmt_list RBRACE;
 while_stmt: WHILE LPAREN bool_expr RPAREN block;
@@ -83,10 +84,10 @@ return_stmt: RETURN SEMI | RETURN arith_expr SEMI;
 func_call: output_call | write_call | user_func_call;
 input_call: INPUT LPAREN RPAREN;
 output_call: OUTPUT LPAREN arith_expr RPAREN;
-write_call: WRITE LPAREN STRING RPAREN;
-user_func_call: ID LPAREN opt_arg_list RPAREN;
+write_call: WRITE LPAREN STRING{add_literal(lt,yytext);} RPAREN;
+user_func_call: ID{utilizar_funcao();} LPAREN{parametros=0;} opt_arg_list  RPAREN{validar_aridade();};
 opt_arg_list: %empty | arg_list;
-arg_list: arg_list COMMA arith_expr | arith_expr;
+arg_list: arg_list COMMA arith_expr{parametros++;} | arith_expr{parametros++;} ;
 bool_expr: arith_expr LT arith_expr 
 | arith_expr LE arith_expr 
 | arith_expr GT arith_expr
@@ -99,7 +100,7 @@ arith_expr: arith_expr PLUS arith_expr
 | arith_expr TIMES arith_expr 
 | arith_expr OVER arith_expr
 | LPAREN arith_expr RPAREN 
-| lval 
+| lval
 | input_call 
 | user_func_call 
 | NUM
@@ -111,81 +112,35 @@ void yyerror (char const *s) {
     printf("PARSE ERROR (%d): %s\n", yylineno, s);
 }
 
-void ValidarDeclararVarivel(){
-	char nome_escopo[100]  = "";
-	sprintf(nome_escopo, "%s_%d", yytext, escopo);
-	int index = lookup_var(variaveis,yytext);
-	
-	if(index < 0) {
-		Variavel* v = create_variavel(yytext,yylineno,escopo,0);
-		add_var(variaveis,nome_escopo,v); 
-	}
-	else{ 
-		Variavel* v = (Variavel*)get_data(variaveis,index);
-		printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",yylineno,yytext,v->line);
-		exit(1);
-	}
-}
-void ValidarUtilizarVariavel(){
-	
-	char nome_escopo[100]  = "";
-	sprintf(nome_escopo, "%s_%d", yytext, escopo);
-	int index = lookup_var(variaveis,nome_escopo);
-	if(index < 0){
-		printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",yylineno,yytext);
-		finalizar();
-		exit(1);
-	}
-}
 
-void declarar_funcao(){
-	aridade = 0;
-	escopo++;
-	int index = lookup_var(funcoes,yytext);
-	
-	if(index < 0) {
-		Funcao* f = create_funcao(yytext,yylineno,0);
-		add_var(funcoes,yytext,f); 
-	}
-	else{ 
-		Funcao* f = (Funcao*)get_data(funcoes,index);
-		printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",yylineno,yytext,f->line);
-		finalizar();
-		exit(1);
-	}
-}
-void utilizar_funcao(){
-	int index = lookup_var(funcoes,yytext);
-	if(index < 0){
-		printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",yylineno,yytext);
-		finalizar();
-		exit(1);
-	}
-}
+
 
 void finalizar(){
 	free_lit_table(lt);
     free_sym_table(variaveis);
     free_sym_table(funcoes);
+    exit(1);
 }
 
 
 // Main.
 int main() {
 	aridade = 0;
-	escopo = 0;
+	escopo = -1;
     lt = create_lit_table();
     variaveis = create_sym_table();
     funcoes = create_sym_table();
     int ret = yyparse();
 
     if (ret == 0) {
-        //printf("PARSE SUCCESSFUL!\n");
-        printf("\n\n");
+        printf("PARSE SUCCESSFUL!\n");
+        printf("\n");
         print_lit_table(lt);
 	    printf("\n\n");
+	    printf("Variables table:\n");
 	    print_sym_table(variaveis, print_variavel);
 	    printf("\n\n");
+	    printf("Functions table:\n");
 	    print_sym_table(funcoes, print_funcao);
     }
     

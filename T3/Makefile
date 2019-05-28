@@ -1,5 +1,5 @@
-File=c11
-Exec=aula8
+File=err3_01
+Exec=trab3
 FolderOut=test/out3
 FolderIn=test/in
 
@@ -12,7 +12,7 @@ flex: scanner.l
 	flex scanner.l
 	
 gcc: menssagem.h ./entity/funcao.h ./entity/variavel.h ./hash/tables.c scanner.c parser.c 
-	gcc -Wall -o $(Exec) ./entity/funcao.c ./entity/variavel.c ./hash/tables.c scanner.c parser.c -ly -lm	 
+	gcc -Wall -w -o $(Exec) ./entity/funcao.c ./entity/variavel.c ./hash/tables.c scanner.c parser.c -ly -lm	 
 
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
