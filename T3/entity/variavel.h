@@ -13,16 +13,23 @@ struct variavel{
   int tamanho;
 };
 
+//Tabela de variaveis
 SymTable* variaveis;
 
-extern int escopo;
+//Limpa memória e finaliza
+void (*variavel_finalizar)(int);
 
 
+//Cria variavel
 Variavel* create_variavel(char *name, int line, int escopo, int tamanho);
 
-void declarar_variavel();
-void utilizar_variavel();
+//Declarar variavel
+void declarar_variavel(char* yytext, int yylineno, int escopo);
 
+//Verifica se variavel utilizada existe
+void utilizar_variavel(char *nameVariavel, int line, int escopo);
+
+//Imprime a tabela de variaveis
 void print_variavel(Variavel *v,int index);
 
 #endif // VARIAVEIS_H

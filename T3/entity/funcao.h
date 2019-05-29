@@ -13,36 +13,25 @@ struct funcao{
   int aridade;
 };
 
-extern int yylineno;
-extern char* yytext;
-
 //Tabela de funções
 SymTable* funcoes;
 
-//----Variaveis globais----
-//Usado para incremetar a aridade da função a cada parametro listado em sua declaração
-int aridade;
-
-//Armazena o escopo atual. Incremeta a cada declaração de função
-int escopo;
-
-//Incremeta a cada parameto listado na chamada de uma função
-int parametros;
+//Limpa memória e finaliza
+void (*funcao_finalizar)(int);
 
 
 //Cria uma função
 Funcao* create_funcao(char *name, int line, int aridade);
 
-/*
-* Adiciona na tabela de simbolos e  verifica se já foi declarada antes
-*/
-void declarar_funcao();
+
+//Adiciona na tabela de simbolos e  verifica se já foi declarada antes
+void declarar_funcao(char *name, int line, int *escopo);
 
 //Verifica se função já foi declarada
-void utilizar_funcao();
+void utilizar_funcao(char * funcname, int line);
 
 //Valida aridade da função
-void validar_aridade();
+void validar_aridade(int line, int nParametros);
 
 //Imprime as propriedas da função na tela
 void print_funcao(Funcao *f,int index);

@@ -3,11 +3,6 @@
 #include <string.h>
 #include "variavel.h"
 
-extern int yylineno;
-extern char* yytext;
-extern char text_id[100];
-
-
 Variavel* create_variavel(char *name, int line, int escopo, int tamanho) {
     Variavel *v = malloc(sizeof(Variavel));
     strcpy(v->name,name);
@@ -17,17 +12,14 @@ Variavel* create_variavel(char *name, int line, int escopo, int tamanho) {
     return v;
 }
 
-void declarar_variavel(){
+void declarar_variavel(char* yytext, int yylineno, int escopo){
 
+	//Concatena o nome da variavel com escopo. Será a key da variavel na tabela de simbolos
 	char nome_escopo[100];
 	sprintf(nome_escopo, "%s_%d", yytext, escopo);
 
-	//printf(nome_escopo(yytext));
-	//return;
-
 	int index = lookup_var(variaveis,nome_escopo);
-	//return;
-	//printf("----%d-----",index);
+
 	if(index < 0) {
 		Variavel* v = create_variavel(yytext,yylineno,escopo,0);
 		add_var(variaveis,nome_escopo,v);
@@ -35,25 +27,25 @@ void declarar_variavel(){
 	else{
 		Variavel* v = (Variavel*)get_data(variaveis,index);
 		printf(MSG_005,yylineno,yytext,v->line);
-		finalizar(1);
+		variavel_finalizar(1);
 	}
 }
-void utilizar_variavel(){
+void utilizar_variavel(char *nameVariavel, int line, int escopo){
+	//Concatena o nome da variavel com escopo. É a key da variavel na tabela de simbolos
 	char nome_escopo[100];
-	sprintf(nome_escopo, "%s_%d", text_id, escopo);
+	sprintf(nome_escopo, "%s_%d", nameVariavel, escopo);
 
 	int index = lookup_var(variaveis,nome_escopo);
 
 	//Variavel não declarada
 	if(index < 0){
-		printf(MSG_003,yylineno,text_id);
-		finalizar(1);
+		printf(MSG_003,line,nameVariavel);
+		variavel_finalizar(1);
 	}
 
 }
 
 
 void print_variavel(Variavel *v,int index){
-	//Entry 0 -- name: x, line: 3, scope: 0, size: 0
 	printf("Entry %d -- name: %s, line: %d, scope: %d, size: %d\n",index, v->name, v->line,v->escopo,v->tamanho);
 }

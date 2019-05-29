@@ -3,10 +3,8 @@
 #include <string.h>
 #include "funcao.h"
 
-//Salva o yytext do ID. É atualizado no arquivo .l
-extern char text_id[100];
 
-//Salva o nome da função que está sendo chamada atualmenta,
+//Salva o nome da função que está sendo chamada atualmente,
 //para depois de contar os parametros, verificar a aridade
 char funcao_atual[100];
 
@@ -18,39 +16,38 @@ Funcao* create_funcao(char *name, int line, int aridade) {
     return f;
 }
 
-void declarar_funcao(){
-	aridade = 0;
-	escopo++;
-	int index = lookup_var(funcoes,yytext);
+void declarar_funcao(char *name, int line, int *escopo){
+	(*escopo)++;
+	int index = lookup_var(funcoes,name);
 
 	if(index < 0) {
-		Funcao* f = create_funcao(yytext,yylineno,0);
-		add_var(funcoes,yytext,f);
+		Funcao* f = create_funcao(name,line,0);
+		add_var(funcoes,name,f);
 	}
 	else{
 		Funcao* f = (Funcao*)get_data(funcoes,index);
-		printf(MSG_006,yylineno,yytext,f->line);
-		finalizar(1);
+		printf(MSG_006,line,name,f->line);
+		funcao_finalizar(1);
 	}
 }
 
 //Verifica se função já foi declarada
-void utilizar_funcao(){
-	strcpy(funcao_atual,text_id);
-	int index = lookup_var(funcoes,text_id);
+void utilizar_funcao(char * funcname, int line){
+	strcpy(funcao_atual,funcname);
+	int index = lookup_var(funcoes,funcname);
 	if(index < 0){
-		printf(MSG_004,yylineno,text_id);
-		finalizar(1);
+		printf(MSG_004,line,funcname);
+		funcao_finalizar(1);
 	}
 }
 
-void validar_aridade(){
+void validar_aridade(int line, int nParametros){
 	int index = lookup_var(funcoes,funcao_atual);
 	Funcao* f = (Funcao*)get_data(funcoes,index);
 
-	if(parametros != f->aridade){
-		printf(MSG_007,yylineno,f->name,parametros, f->aridade);
-		finalizar(1);
+	if(nParametros != f->aridade){
+		printf(MSG_007,line,f->name,nParametros, f->aridade);
+		funcao_finalizar(1);
 	}
 }
 
