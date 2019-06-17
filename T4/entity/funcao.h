@@ -25,7 +25,7 @@ Funcao* create_funcao(char *name, int line, int aridade);
 
 
 //Adiciona na tabela de simbolos e  verifica se já foi declarada antes
-void declarar_funcao(char *name, int line, int *escopo);
+int declarar_funcao(char *name, int line, int *escopo);
 
 //Verifica se função já foi declarada
 void utilizar_funcao(char * funcname, int line);

@@ -8,6 +8,8 @@
 %define parse.error verbose
 // Enable LAC (lookahead correction) to improve syntax error handling.
 %define parse.lac full
+// Enable the trace option so that debugging is possible.
+%define parse.trace
 
 %{
 #include <stdio.h>
@@ -15,6 +17,7 @@
 #include "./hash/tables.h"
 #include "./entity/variavel.h"
 #include "./entity/funcao.h"
+#include "./ast/ast.h"
 #include "menssagem.h"
 
 int yylex();
@@ -38,7 +41,12 @@ int aridade;
 //Tabela de Literais
 LitTable* lt;
 
+//Arvore de Sintaxe Abstrata
+AST *ast;
+
 %}
+
+%define api.value.type {AST*} // Type of variable yylval;
 
 %token ELSE IF INPUT INT OUTPUT RETURN VOID WHILE WRITE
 %token ASSIGN
@@ -50,24 +58,32 @@ LitTable* lt;
 %left TIMES OVER  /* Mais para baixo, maior precedencia. */
 %%
 
-program: func_decl_list;
+program: func_decl_list         { ast = $1; };
 
 func_decl_list:
-	func_decl_list func_decl
-| 	func_decl
+	func_decl_list func_decl    { add_child($1, $2); $$ = $1; }
+| 	func_decl                   { $$ = new_subtree(FUNC_LIST_NODE, 1, $1); }
 ;
 
-func_decl: func_header func_body;
-func_header: ret_type ID{aridade = 0; declarar_funcao(yytext, yylineno, &escopo);} LPAREN params RPAREN {((Funcao*)last_data(funcoes))->aridade = aridade; aridade = 0;};
-func_body: LBRACE opt_var_decl opt_stmt_list RBRACE;
+func_decl: 
+    func_header func_body {$$ = new_subtree(FUNC_DECL_NODE, 1, $1);};
+func_header: 
+    ret_type ID{aridade = 0;  $$ = new_node(FUNC_NAME_NODE,declarar_funcao(yytext, yylineno, &escopo));} LPAREN params RPAREN {((Funcao*)last_data(funcoes))->aridade = aridade; aridade = 0;$$ = new_subtree(FUNC_HEADER_NODE, 2, $3, $5);};
+func_body: 
+    LBRACE opt_var_decl opt_stmt_list RBRACE {$$ = new_subtree(FUNC_BODY_NODE, 2, $2, $3);};
 
 opt_var_decl: %empty | var_decl_list;
 opt_stmt_list: %empty | stmt_list;
 ret_type: INT | VOID;
-params: VOID | param_list;
-param_list: param_list COMMA param | param;
+params: 
+    VOID        
+|   param_list  {$$ = $1;}
+;
+param_list: 
+    param_list COMMA param 
+|   param;
 param: param_1 | param_1 LBRACK RBRACK{((Variavel*)last_data(variaveis))->tamanho = -1;};
-param_1: INT ID {aridade++;declarar_variavel(yytext, yylineno, escopo);};
+param_1: INT ID {aridade++; $$ = new_node(VAR_DECL_NODE, declarar_variavel(yytext, yylineno, escopo));};
 
 var_decl_list: var_decl_list var_decl | var_decl;
 var_decl: var_decl_1 SEMI | var_decl_1 LBRACK NUM{((Variavel*)last_data(variaveis))->tamanho = atoi(yytext);} RBRACK SEMI;
@@ -138,6 +154,11 @@ int main() {
     funcao_finalizar = variavel_finalizar = &finalizar;
     int ret = yyparse();
 
+    if (ret == 0) {
+        print_dot(ast);
+        free_tree(ast);
+    }
+    else
     if (ret == 0) {
         printf(MSG_001);
         printf("\n");

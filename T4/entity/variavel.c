@@ -12,7 +12,7 @@ Variavel* create_variavel(char *name, int line, int escopo, int tamanho) {
     return v;
 }
 
-void declarar_variavel(char* yytext, int yylineno, int escopo){
+int declarar_variavel(char* yytext, int yylineno, int escopo){
 
 	//Concatena o nome da variavel com escopo. Será a key da variavel na tabela de simbolos
 	char nome_escopo[100];
@@ -22,13 +22,15 @@ void declarar_variavel(char* yytext, int yylineno, int escopo){
 
 	if(index < 0) {
 		Variavel* v = create_variavel(yytext,yylineno,escopo,0);
-		add_var(variaveis,nome_escopo,v);
+		return add_var(variaveis,nome_escopo,v);
 	}
 	else{
 		Variavel* v = (Variavel*)get_data(variaveis,index);
 		printf(MSG_005,yylineno,yytext,v->line);
 		variavel_finalizar(1);
 	}
+
+	return -1;
 }
 void utilizar_variavel(char *nameVariavel, int line, int escopo){
 	//Concatena o nome da variavel com escopo. É a key da variavel na tabela de simbolos

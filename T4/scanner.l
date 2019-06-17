@@ -5,9 +5,10 @@
 %option yylineno
 
 %{
-
+#include "./ast/ast.h"
 #include "parser.h"
 #include "menssagem.h"
+
 
 #define process_token(type) if(!comentario) return type
 void Token(int line, char*  text, char *type) ;

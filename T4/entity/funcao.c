@@ -16,19 +16,21 @@ Funcao* create_funcao(char *name, int line, int aridade) {
     return f;
 }
 
-void declarar_funcao(char *name, int line, int *escopo){
+int declarar_funcao(char *name, int line, int *escopo){
 	(*escopo)++;
 	int index = lookup_var(funcoes,name);
 
 	if(index < 0) {
 		Funcao* f = create_funcao(name,line,0);
-		add_var(funcoes,name,f);
+		return add_var(funcoes,name,f);
 	}
 	else{
 		Funcao* f = (Funcao*)get_data(funcoes,index);
 		printf(MSG_006,line,name,f->line);
 		funcao_finalizar(1);
 	}
+
+	return -1;
 }
 
 //Verifica se função já foi declarada
