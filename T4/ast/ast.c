@@ -81,30 +81,38 @@ char* kind2str(NodeKind kind) {
         case VAR_LIST_NODE: return "var_list";
         case VAR_DECL_NODE: return "var_decl";
         case VAR_USE_NODE: return "var_use";
-        
+
         case BLOCK_NODE: return "block";
         case RETURN_NODE: return "return";
         case OUTPUT_NODE: return "output";
-        
-        
-        
-        
+        case INPUT_NODE: return "INput";
 
 
-        
-        
+
+
+
+
+
+
         case IF_NODE: return "if";
-        case REPEAT_NODE: return "repeat";
+        case WHILE_NODE: return "while";
         case READ_NODE: return "read";
         case WRITE_NODE: return "write";
         case PLUS_NODE: return "+";
         case MINUS_NODE: return "-";
         case TIMES_NODE: return "*";
         case OVER_NODE: return "/";
+
         case LT_NODE: return "<";
+        case LE_NODE: return ">";
+        case GT_NODE: return "<=";
+        case GE_NODE: return ">=";
         case EQ_NODE: return "==";
+        case NEQ_NODE: return "!=";
+
         case ASSIGN_NODE: return "=";
         case NUM_NODE: return "num";
+        case STRING_NODE: return "string";
         case ID_NODE: return "id";
         default: return "ERROR!!";
     }
@@ -114,7 +122,7 @@ void print_node(AST *node, int level) {
     printf("%d: Node -- Addr: %p -- Kind: %s -- Data: %d -- Count: %d\n",
            level, node, kind2str(node->kind), node->data, node->count);
     for (int i = 0; i < node->count; i++) {
-        print_node(node->child[i], level+1);
+            print_node(node->child[i], level+1);
     }
 }
 
@@ -135,7 +143,11 @@ void free_tree(AST *tree) {
 int nr;
 
 int has_data(NodeKind kind) {
-    if (kind == NUM_NODE || kind == VAR_DECL_NODE) {
+    if (kind == NUM_NODE ||
+        kind == VAR_DECL_NODE ||
+        kind == FUNC_NAME_NODE ||
+        kind == STRING_NODE
+        ) {
         return 1;
     } else {
         return 0;

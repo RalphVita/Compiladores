@@ -19,10 +19,10 @@ typedef enum {
     BLOCK_NODE,
     RETURN_NODE,
     OUTPUT_NODE,
-
+    INPUT_NODE,
 
     IF_NODE,
-    REPEAT_NODE,
+    WHILE_NODE,
     ASSIGN_NODE,
     READ_NODE,
     WRITE_NODE,
@@ -30,9 +30,16 @@ typedef enum {
     MINUS_NODE,
     TIMES_NODE,
     OVER_NODE,
+
     LT_NODE,
+    LE_NODE,
+    GT_NODE,
+    GE_NODE,
     EQ_NODE,
+    NEQ_NODE,
+    
     NUM_NODE,
+    STRING_NODE,
     ID_NODE
 } NodeKind;
 

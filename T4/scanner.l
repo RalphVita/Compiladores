@@ -10,6 +10,7 @@
 #include "menssagem.h"
 
 
+
 #define process_token(type) if(!comentario) return type
 void Token(int line, char*  text, char *type) ;
 int comentario = 0;
@@ -25,7 +26,7 @@ letra	[a-zA-Z]
 letranumero ({letra}+{digito}*)
 id		({letranumero}*)
 %%
-\n 
+\n
 [ \t]+      /* pula espaco em branco - acao: fazer nada. */
 \/\/.*
 \/\*		{comentario++;};
@@ -37,29 +38,29 @@ int			{ process_token(INT); }
 output		{ process_token(OUTPUT); }
 return		{ process_token(RETURN); }
 void        { process_token(VOID); }
-while		{ process_token(WHILE); } 
-write		{ process_token(WRITE); } 
+while		{ process_token(WHILE); }
+write		{ process_token(WRITE); }
 
 \+			{ process_token(PLUS); }
 \-			{ process_token(MINUS); }
-\*			{ process_token(TIMES); } 
+\*			{ process_token(TIMES); }
 \/			{ process_token(OVER); }
 \<			{ process_token(LT); }
 \<=			{ process_token(LE); }
-\>			{ process_token(GT); } 
+\>			{ process_token(GT); }
 \>=			{ process_token(GE); }
 \=\=		{ process_token(EQ); }
-\!\=		{ process_token(NEQ); }  
+\!\=		{ process_token(NEQ); }
 \=			{ process_token(ASSIGN); }
 
 ;			{ process_token(SEMI); }
 ,			{ process_token(COMMA); }
-\(			{ process_token(LPAREN); } 
-\)			{ process_token(RPAREN); } 
-\[			{ process_token(LBRACK); } 
+\(			{ process_token(LPAREN); }
+\)			{ process_token(RPAREN); }
+\[			{ process_token(LBRACK); }
 \]			{ process_token(RBRACK); }
-\{			{ process_token(LBRACE); } 
-\}			{ process_token(RBRACE); } 
+\{			{ process_token(LBRACE); }
+\}			{ process_token(RBRACE); }
 
 {numero}	{ process_token(NUM); }
 {id}  		{ strcpy(text_id,yytext);process_token(ID); }
