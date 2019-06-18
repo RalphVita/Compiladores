@@ -18,20 +18,20 @@ gcc: menssagem.h ./ast/ast.h ./entity/funcao.h ./entity/variavel.h ./hash/tables
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
 
-dot:
-	./$(Exec) < ./$(FolderIn)/$(File).cm > out.dot
+dot: all
+	./$(Exec) -d < ./$(FolderIn)/$(File).cm > out.dot
 	dot -Tpdf out.dot -o out.pdf
 
 dot_diff:
-	./$(Exec) < ./$(FolderIn)/$(File).cm | diff ./$(FolderAst)/$(File).dot -
+	./$(Exec) -d < ./$(FolderIn)/$(File).cm | diff ./$(FolderAst)/$(File).dot -
 
 dot_loop:
 	$(foreach f, $(sort $(wildcard ./$(FolderIn)/*.cm)), \
 	echo $(notdir $(basename $f));\
-	./$(Exec) < ./$(FolderIn)/$(notdir $(basename $f)).cm | diff ./$(FolderAst)/$(notdir $(basename $f)).dot -;)
+	./$(Exec) -d < ./$(FolderIn)/$(notdir $(basename $f)).cm | diff ./$(FolderAst)/$(notdir $(basename $f)).dot -;)
 
 clean:
-	rm -f *.out scanner.c parser.h parser.c $(Exec)
+	rm -f *.out *.dot *.pdf scanner.c parser.h parser.c $(Exec)
 
 diff:
 	./$(Exec) < ./$(FolderIn)/$(File).cm | diff ./$(FolderOut)/$(File).out -

@@ -201,10 +201,20 @@ void finalizar(int erro){
     if(erro)
     	exit(erro);
 }
+//Veririfica se vetor de string contém determinado valor(string)
+int ArgsHas(char *argv[], int size, char* valor)
+{
+	for (size = size - 1; size > 0; size--)
+	{
+		if (!strcmp(argv[size], valor))
+			return 1;
+	}
+	return 0;
+}
 
 
 // Main.
-int main() {
+int main(int argc, char *argv[]) {
 	aridade = 0;
 	escopo = -1;
     lt = create_lit_table();
@@ -213,12 +223,11 @@ int main() {
     funcao_finalizar = variavel_finalizar = &finalizar;
     int ret = yyparse();
 
-    if (ret == 0) {
+    if (ArgsHas(argv, argc, "-d")) {
         print_dot(ast);
         free_tree(ast);
     }
-    else
-    if (ret == 0) {
+    else if (ret == 0) {
         printf(MSG_001);
         printf("\n");
 
