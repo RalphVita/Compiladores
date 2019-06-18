@@ -145,7 +145,7 @@ return_stmt:
 ;
 func_call:
     output_call
-|   write_call
+|   write_call							{$$ = new_subtree(WRITE_NODE, 1, $1);}
 |   user_func_call
 ;
 input_call: INPUT LPAREN RPAREN                 { $$ = new_subtree(INPUT_NODE, 0);};

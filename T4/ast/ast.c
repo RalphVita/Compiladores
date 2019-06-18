@@ -85,7 +85,7 @@ char* kind2str(NodeKind kind) {
         case BLOCK_NODE: return "block";
         case RETURN_NODE: return "return";
         case OUTPUT_NODE: return "output";
-        case INPUT_NODE: return "INput";
+        case INPUT_NODE: return "input";
 
 
 
@@ -104,8 +104,8 @@ char* kind2str(NodeKind kind) {
         case OVER_NODE: return "/";
 
         case LT_NODE: return "<";
-        case LE_NODE: return ">";
-        case GT_NODE: return "<=";
+        case LE_NODE: return "<=";
+        case GT_NODE: return ">";
         case GE_NODE: return ">=";
         case EQ_NODE: return "==";
         case NEQ_NODE: return "!=";
@@ -147,7 +147,8 @@ int has_data(NodeKind kind) {
         kind == VAR_DECL_NODE ||
         kind == FUNC_NAME_NODE ||
         kind == STRING_NODE ||
-        kind == FUNC_CALL_NODE
+        kind == FUNC_CALL_NODE ||
+        kind == VAR_USE_NODE
         ) {
         return 1;
     } else {

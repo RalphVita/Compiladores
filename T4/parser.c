@@ -1774,140 +1774,146 @@ yyreduce:
 #line 1775 "parser.c" /* yacc.c:1646  */
     break;
 
+  case 47:
+#line 148 "parser.y" /* yacc.c:1646  */
+    {(yyval) = new_subtree(WRITE_NODE, 1, (yyvsp[0]));}
+#line 1781 "parser.c" /* yacc.c:1646  */
+    break;
+
   case 49:
 #line 151 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(INPUT_NODE, 0);}
-#line 1781 "parser.c" /* yacc.c:1646  */
+#line 1787 "parser.c" /* yacc.c:1646  */
     break;
 
   case 50:
 #line 152 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(OUTPUT_NODE, 1, (yyvsp[-1]));}
-#line 1787 "parser.c" /* yacc.c:1646  */
+#line 1793 "parser.c" /* yacc.c:1646  */
     break;
 
   case 51:
 #line 153 "parser.y" /* yacc.c:1646  */
     {(yyval) = new_node(STRING_NODE,add_literal(lt,yytext));}
-#line 1793 "parser.c" /* yacc.c:1646  */
+#line 1799 "parser.c" /* yacc.c:1646  */
     break;
 
   case 52:
 #line 153 "parser.y" /* yacc.c:1646  */
     {(yyval) = (yyvsp[-1]);}
-#line 1799 "parser.c" /* yacc.c:1646  */
+#line 1805 "parser.c" /* yacc.c:1646  */
     break;
 
   case 53:
 #line 155 "parser.y" /* yacc.c:1646  */
     {(yyval) = new_node(FUNC_CALL_NODE,utilizar_funcao(text_id, yylineno));}
-#line 1805 "parser.c" /* yacc.c:1646  */
+#line 1811 "parser.c" /* yacc.c:1646  */
     break;
 
   case 54:
 #line 155 "parser.y" /* yacc.c:1646  */
     {aridade=0;}
-#line 1811 "parser.c" /* yacc.c:1646  */
+#line 1817 "parser.c" /* yacc.c:1646  */
     break;
 
   case 55:
 #line 155 "parser.y" /* yacc.c:1646  */
     {validar_aridade(yylineno, aridade); add_child((yyvsp[-4]), (yyvsp[-1])); (yyval) = (yyvsp[-4]);}
-#line 1817 "parser.c" /* yacc.c:1646  */
+#line 1823 "parser.c" /* yacc.c:1646  */
     break;
 
   case 56:
 #line 158 "parser.y" /* yacc.c:1646  */
     {(yyval) = new_subtree(ARG_LIST_NODE, 0);}
-#line 1823 "parser.c" /* yacc.c:1646  */
+#line 1829 "parser.c" /* yacc.c:1646  */
     break;
 
   case 58:
 #line 162 "parser.y" /* yacc.c:1646  */
     {aridade++; add_child((yyvsp[-2]), (yyvsp[0])); (yyval) = (yyvsp[-2]); }
-#line 1829 "parser.c" /* yacc.c:1646  */
+#line 1835 "parser.c" /* yacc.c:1646  */
     break;
 
   case 59:
 #line 163 "parser.y" /* yacc.c:1646  */
     {aridade++;(yyval) = new_subtree(ARG_LIST_NODE, 1, (yyvsp[0]));}
-#line 1835 "parser.c" /* yacc.c:1646  */
+#line 1841 "parser.c" /* yacc.c:1646  */
     break;
 
   case 60:
 #line 166 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(LT_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1841 "parser.c" /* yacc.c:1646  */
+#line 1847 "parser.c" /* yacc.c:1646  */
     break;
 
   case 61:
 #line 167 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(LE_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1847 "parser.c" /* yacc.c:1646  */
+#line 1853 "parser.c" /* yacc.c:1646  */
     break;
 
   case 62:
 #line 168 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(GT_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1853 "parser.c" /* yacc.c:1646  */
+#line 1859 "parser.c" /* yacc.c:1646  */
     break;
 
   case 63:
 #line 169 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(GE_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1859 "parser.c" /* yacc.c:1646  */
+#line 1865 "parser.c" /* yacc.c:1646  */
     break;
 
   case 64:
 #line 170 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(EQ_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1865 "parser.c" /* yacc.c:1646  */
+#line 1871 "parser.c" /* yacc.c:1646  */
     break;
 
   case 65:
 #line 171 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(NEQ_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1871 "parser.c" /* yacc.c:1646  */
+#line 1877 "parser.c" /* yacc.c:1646  */
     break;
 
   case 66:
 #line 174 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(PLUS_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1877 "parser.c" /* yacc.c:1646  */
+#line 1883 "parser.c" /* yacc.c:1646  */
     break;
 
   case 67:
 #line 175 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(MINUS_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1883 "parser.c" /* yacc.c:1646  */
+#line 1889 "parser.c" /* yacc.c:1646  */
     break;
 
   case 68:
 #line 176 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(TIMES_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1889 "parser.c" /* yacc.c:1646  */
+#line 1895 "parser.c" /* yacc.c:1646  */
     break;
 
   case 69:
 #line 177 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_subtree(OVER_NODE, 2, (yyvsp[-2]), (yyvsp[0])); }
-#line 1895 "parser.c" /* yacc.c:1646  */
+#line 1901 "parser.c" /* yacc.c:1646  */
     break;
 
   case 70:
 #line 178 "parser.y" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1901 "parser.c" /* yacc.c:1646  */
+#line 1907 "parser.c" /* yacc.c:1646  */
     break;
 
   case 74:
 #line 182 "parser.y" /* yacc.c:1646  */
     { (yyval) = new_node(NUM_NODE, atoi(yytext)); }
-#line 1907 "parser.c" /* yacc.c:1646  */
+#line 1913 "parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 1911 "parser.c" /* yacc.c:1646  */
+#line 1917 "parser.c" /* yacc.c:1646  */
         default: break;
       }
     if (yychar_backup != yychar)
