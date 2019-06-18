@@ -1,4 +1,4 @@
-File=c09
+File=c13
 Exec=trab4
 FolderOut=test/out4
 FolderAst=test/ast
@@ -19,9 +19,11 @@ executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
 
 dot:
-	#./$(Exec) < ./$(FolderIn)/$(File).cm > out.dot
+	./$(Exec) < ./$(FolderIn)/$(File).cm > out.dot
+	dot -Tpdf out.dot -o out.pdf
+
+dot_diff:
 	./$(Exec) < ./$(FolderIn)/$(File).cm | diff ./$(FolderAst)/$(File).dot -
-	#dot -Tpdf out.dot -o out.pdf
 
 dot_loop:
 	$(foreach f, $(sort $(wildcard ./$(FolderIn)/*.cm)), \

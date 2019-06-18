@@ -130,7 +130,11 @@ stmt:
     assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
 assign_stmt: lval ASSIGN arith_expr SEMI    {$$ = new_subtree(ASSIGN_NODE, 2, $1, $3);};
 
-lval: lval_1 | lval_1 LBRACK NUM RBRACK | lval_1 LBRACK lval_1 RBRACK;
+lval: 
+    lval_1 
+|   lval_1 LBRACK NUM {$$ = new_node(NUM_NODE,atoi(yytext));} RBRACK    {add_child($1,$4); $$ = $1;}
+|   lval_1 LBRACK lval_1 RBRACK     {add_child($1,$3); $$ = $1;}
+;
 lval_1: ID  {$$ =  new_node(VAR_USE_NODE, utilizar_variavel(text_id, yylineno, escopo));};
 
 if_stmt:
