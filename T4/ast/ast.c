@@ -102,8 +102,8 @@ char* kind2str(NodeKind kind) {
         case TIMES_NODE: return "*";
         case OVER_NODE: return "/";
         case LT_NODE: return "<";
-        case EQ_NODE: return "=";
-        case ASSIGN_NODE: return ":=";
+        case EQ_NODE: return "==";
+        case ASSIGN_NODE: return "=";
         case NUM_NODE: return "num";
         case ID_NODE: return "id";
         default: return "ERROR!!";
@@ -135,7 +135,7 @@ void free_tree(AST *tree) {
 int nr;
 
 int has_data(NodeKind kind) {
-    if (kind == NUM_NODE) {
+    if (kind == NUM_NODE || kind == VAR_DECL_NODE) {
         return 1;
     } else {
         return 0;

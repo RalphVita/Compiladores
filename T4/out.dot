@@ -1,0 +1,24 @@
+digraph {
+graph [ordering="out"];
+node0[label="func_list"];
+node1[label="func_decl"];
+node2[label="func_header"];
+node3[label="func_name"];
+node2 -> node3;
+node4[label="param_list"];
+node5[label="var_decl,0"];
+node4 -> node5;
+node6[label="var_decl,1"];
+node4 -> node6;
+node2 -> node4;
+node1 -> node2;
+node0 -> node1;
+node7[label="func_decl"];
+node8[label="func_header"];
+node9[label="func_name"];
+node8 -> node9;
+node10[label="param_list"];
+node8 -> node10;
+node7 -> node8;
+node0 -> node7;
+}

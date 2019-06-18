@@ -34,13 +34,14 @@ int declarar_funcao(char *name, int line, int *escopo){
 }
 
 //Verifica se função já foi declarada
-void utilizar_funcao(char * funcname, int line){
+int utilizar_funcao(char * funcname, int line){
 	strcpy(funcao_atual,funcname);
 	int index = lookup_var(funcoes,funcname);
 	if(index < 0){
 		printf(MSG_004,line,funcname);
 		funcao_finalizar(1);
 	}
+	return index;
 }
 
 void validar_aridade(int line, int nParametros){

@@ -28,7 +28,7 @@ Funcao* create_funcao(char *name, int line, int aridade);
 int declarar_funcao(char *name, int line, int *escopo);
 
 //Verifica se função já foi declarada
-void utilizar_funcao(char * funcname, int line);
+int utilizar_funcao(char * funcname, int line);
 
 //Valida aridade da função
 void validar_aridade(int line, int nParametros);

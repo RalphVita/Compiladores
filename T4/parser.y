@@ -66,37 +66,71 @@ func_decl_list:
 ;
 
 func_decl: 
-    func_header func_body {$$ = new_subtree(FUNC_DECL_NODE, 1, $1);};
+    func_header func_body {$$ = new_subtree(FUNC_DECL_NODE, 2, $1, $2);}
+;
 func_header: 
-    ret_type ID{aridade = 0;  $$ = new_node(FUNC_NAME_NODE,declarar_funcao(yytext, yylineno, &escopo));} LPAREN params RPAREN {((Funcao*)last_data(funcoes))->aridade = aridade; aridade = 0;$$ = new_subtree(FUNC_HEADER_NODE, 2, $3, $5);};
+    ret_type func_name LPAREN params RPAREN {((Funcao*)last_data(funcoes))->aridade = aridade; aridade = 0;$$ = new_subtree(FUNC_HEADER_NODE, 2, $2, $4);}
+;
+
+func_name:
+    ID  {aridade = 0;  $$ = new_node(FUNC_NAME_NODE, declarar_funcao(yytext, yylineno, &escopo));}
+;
+
 func_body: 
     LBRACE opt_var_decl opt_stmt_list RBRACE {$$ = new_subtree(FUNC_BODY_NODE, 2, $2, $3);};
 
-opt_var_decl: %empty | var_decl_list;
-opt_stmt_list: %empty | stmt_list;
-ret_type: INT | VOID;
+opt_var_decl: 
+    %empty          {$$ = new_subtree(VAR_LIST_NODE, 0);} 
+|   var_decl_list   {$$ = $1;}
+;
+
+opt_stmt_list: 
+    %empty          {$$ = new_subtree(BLOCK_NODE, 0);}
+|   stmt_list       {$$ = $1;}
+;
+
+ret_type: 
+    INT 
+|   VOID
+;
+
 params: 
-    VOID        
+    VOID        {$$ = new_subtree(PARAM_LIST_NODE, 0);}    
 |   param_list  {$$ = $1;}
 ;
 param_list: 
-    param_list COMMA param 
-|   param;
-param: param_1 | param_1 LBRACK RBRACK{((Variavel*)last_data(variaveis))->tamanho = -1;};
-param_1: INT ID {aridade++; $$ = new_node(VAR_DECL_NODE, declarar_variavel(yytext, yylineno, escopo));};
+    param_list COMMA param { add_child($1, $3); $$ = $1; }
+|   param {$$ = new_subtree(PARAM_LIST_NODE, 1, $1);};
+param: 
+    param_1     { $$=$1; }
+|   param_1 LBRACK RBRACK   { ((Variavel*)last_data(variaveis))->tamanho = -1; $$ = $1; }
+;
+param_1: 
+    INT ID {aridade++; $$ = new_node(VAR_DECL_NODE, declarar_variavel(yytext, yylineno, escopo));}
+;
 
-var_decl_list: var_decl_list var_decl | var_decl;
-var_decl: var_decl_1 SEMI | var_decl_1 LBRACK NUM{((Variavel*)last_data(variaveis))->tamanho = atoi(yytext);} RBRACK SEMI;
+var_decl_list: 
+    var_decl_list var_decl  { add_child($1, $2); $$ = $1; }
+|   var_decl                {$$ = new_subtree(VAR_LIST_NODE, 1, $1);};
+;
+var_decl: 
+    var_decl_1 SEMI
+|   var_decl_1 LBRACK NUM{((Variavel*)last_data(variaveis))->tamanho = atoi(yytext);} RBRACK SEMI
+;
 
-var_decl_1: INT ID{declarar_variavel(yytext, yylineno, escopo);};
+var_decl_1: INT ID  {$$ = new_node(VAR_DECL_NODE, declarar_variavel(yytext, yylineno, escopo));};
 
 
-stmt_list: stmt_list stmt | stmt;
-stmt: assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
-assign_stmt: lval ASSIGN arith_expr SEMI;
+stmt_list: 
+    stmt_list stmt  { add_child($1, $2); $$ = $1; } 
+|   stmt    {$$ = new_subtree(BLOCK_NODE, 1, $1);}
+;
+stmt: 
+    assign_stmt | if_stmt | while_stmt | return_stmt | func_call SEMI;
+assign_stmt: lval ASSIGN arith_expr SEMI    {$$ = new_subtree(ASSIGN_NODE, 2, $1, $3);};
 
 lval: lval_1 | lval_1 LBRACK NUM RBRACK | lval_1 LBRACK lval_1 RBRACK;
-lval_1: ID{utilizar_variavel(text_id, yylineno, escopo);};
+lval_1: ID  {$$ =  new_node(VAR_USE_NODE, utilizar_variavel(text_id, yylineno, escopo));};
 
 if_stmt: IF LPAREN bool_expr RPAREN block | IF LPAREN bool_expr RPAREN block ELSE block;
 block: LBRACE opt_stmt_list RBRACE;

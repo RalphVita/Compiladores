@@ -32,7 +32,7 @@ int declarar_variavel(char* yytext, int yylineno, int escopo){
 
 	return -1;
 }
-void utilizar_variavel(char *nameVariavel, int line, int escopo){
+int utilizar_variavel(char *nameVariavel, int line, int escopo){
 	//Concatena o nome da variavel com escopo. É a key da variavel na tabela de simbolos
 	char nome_escopo[100];
 	sprintf(nome_escopo, "%s_%d", nameVariavel, escopo);
@@ -44,7 +44,7 @@ void utilizar_variavel(char *nameVariavel, int line, int escopo){
 		printf(MSG_003,line,nameVariavel);
 		variavel_finalizar(1);
 	}
-
+	return index;
 }
 
 

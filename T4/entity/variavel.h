@@ -27,7 +27,7 @@ Variavel* create_variavel(char *name, int line, int escopo, int tamanho);
 int declarar_variavel(char* yytext, int yylineno, int escopo);
 
 //Verifica se variavel utilizada existe
-void utilizar_variavel(char *nameVariavel, int line, int escopo);
+int utilizar_variavel(char *nameVariavel, int line, int escopo);
 
 //Imprime a tabela de variaveis
 void print_variavel(Variavel *v,int index);

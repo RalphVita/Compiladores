@@ -1,4 +1,4 @@
-File=c01
+File=c11
 Exec=trab4
 FolderOut=test/out4
 FolderIn=test/in
@@ -19,6 +19,7 @@ executa:
 
 dot:
 	./$(Exec) < ./$(FolderIn)/$(File).cm > out.dot
+	dot -Tpdf out.dot -o out.pdf
 
 clean:
 	rm -f *.out scanner.c parser.h parser.c $(Exec)
