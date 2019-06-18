@@ -47,7 +47,7 @@ node23[label="var_list"];
 node22 -> node23;
 node24[label="block"];
 node25[label="output"];
-node26[label="fcall"];
+node26[label="fcall,0"];
 node27[label="arg_list"];
 node28[label="num,3"];
 node27 -> node28;

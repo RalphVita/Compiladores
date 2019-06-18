@@ -146,7 +146,8 @@ int has_data(NodeKind kind) {
     if (kind == NUM_NODE ||
         kind == VAR_DECL_NODE ||
         kind == FUNC_NAME_NODE ||
-        kind == STRING_NODE
+        kind == STRING_NODE ||
+        kind == FUNC_CALL_NODE
         ) {
         return 1;
     } else {
