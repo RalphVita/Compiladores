@@ -43,7 +43,6 @@ LitTable* lt;
 
 //Arvore de Sintaxe Abstrata
 AST *ast;
-
 %}
 
 %define api.value.type {AST*} // Type of variable yylval;
@@ -62,7 +61,7 @@ program: func_decl_list         { ast = $1; };
 
 func_decl_list:
 	func_decl_list func_decl    { add_child($1, $2); $$ = $1; }
-| 	func_decl                   { $$ = new_subtree(FUNC_LIST_NODE, 1, $1); }
+| 	func_decl                   { $$ = new_subtree(FUNC_LIST_NODE, 1, $1);}
 ;
 
 func_decl:
@@ -197,6 +196,7 @@ void finalizar(int erro){
 	free_lit_table(lt);
     free_sym_table(variaveis);
     free_sym_table(funcoes);
+    free_tree(ast);
 
     if(erro)
     	exit(erro);
@@ -223,9 +223,8 @@ int main(int argc, char *argv[]) {
     funcao_finalizar = variavel_finalizar = &finalizar;
     int ret = yyparse();
 
-    if (ArgsHas(argv, argc, "-d")) {
-        print_dot(ast);
-        free_tree(ast);
+    if (ArgsHas(argv, argc, "-d") && ret == 0) {
+        print_dot(ast);   
     }
     else if (ret == 0) {
         printf(MSG_001);

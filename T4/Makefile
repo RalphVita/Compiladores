@@ -1,4 +1,4 @@
-File=c13
+File=err2_01
 Exec=trab4
 FolderOut=test/out4
 FolderAst=test/ast
@@ -18,6 +18,9 @@ gcc: menssagem.h ./ast/ast.h ./entity/funcao.h ./entity/variavel.h ./hash/tables
 executa:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
 
+ast: all
+	./$(Exec) -d < ./$(FolderIn)/$(File).cm
+	
 dot: all
 	./$(Exec) -d < ./$(FolderIn)/$(File).cm > out.dot
 	dot -Tpdf out.dot -o out.pdf
@@ -39,3 +42,8 @@ loop:
 	$(foreach f, $(sort $(wildcard ./$(FolderIn)/*.cm)), \
 	echo $(notdir $(basename $f));\
 	./$(Exec) < ./$(FolderIn)/$(notdir $(basename $f)).cm | diff ./$(FolderOut)/$(notdir $(basename $f)).out -;)
+
+up: clean
+	git add .
+	git commit -m "commit automático"
+	git push origin master
