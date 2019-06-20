@@ -87,13 +87,6 @@ char* kind2str(NodeKind kind) {
         case OUTPUT_NODE: return "output";
         case INPUT_NODE: return "input";
 
-
-
-
-
-
-
-
         case IF_NODE: return "if";
         case WHILE_NODE: return "while";
         case READ_NODE: return "read";
@@ -113,7 +106,7 @@ char* kind2str(NodeKind kind) {
         case ASSIGN_NODE: return "=";
         case NUM_NODE: return "num";
         case STRING_NODE: return "string";
-        case ID_NODE: return "id";
+
         default: return "ERROR!!";
     }
 }
