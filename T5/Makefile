@@ -1,4 +1,4 @@
-File=c01
+File=c03
 Exec=trab5
 FolderOut=test/out4
 FolderAst=test/ast
@@ -15,7 +15,7 @@ flex: scanner.l
 gcc: menssagem.h ./ast/ast.h ./entity/funcao.h ./entity/variavel.h ./hash/tables.c ./porting/interpreter.h scanner.c parser.c
 	gcc -Wall -w -o $(Exec) ./ast/ast.c ./entity/funcao.c ./entity/variavel.c ./hash/tables.c ./porting/interpreter.c scanner.c parser.c -ly -lm
 
-executa:
+run:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
 
 ast: all

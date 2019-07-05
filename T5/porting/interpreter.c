@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include "interpreter.h"
 #include "../hash/tables.h"
+#include "../entity/funcao.h"
+#include "../entity/variavel.h"
+#include "../util/string_util.h"
 
-extern SymTable *vt;
+extern SymTable *lt;
+extern SymTable* variaveis;
+extern SymTable* funcoes;
 
 // Data stack -----------------------------------------------------------------
 
@@ -60,7 +65,7 @@ void init_mem() {
 
 // ----------------------------------------------------------------------------
 
-// #define TRACE
+//#define TRACE
 #ifdef TRACE
 #define trace(msg) printf("TRACE: %s\n", msg)
 #else
@@ -68,6 +73,11 @@ void init_mem() {
 #endif
 
 void rec_run_ast(AST *ast);
+
+void run_var_decl(ast){
+    trace("var_decl");
+    int var_idx = ast_get_data(ast);
+}
 
 void run_stmt_seq(AST *ast) {
     trace("stmt_seq");
@@ -88,13 +98,13 @@ void run_if(AST *ast) {
     }
 }
 
-void run_repeat(AST *ast) {
-    trace("repeat");
+void run_while(AST *ast) {
+    trace("while");
     int again = 1;
     while (again) {
-        rec_run_ast(get_child(ast, 0)); // Run body.
-        rec_run_ast(get_child(ast, 1)); // Run test.
-        again = !pop();
+        rec_run_ast(get_child(ast, 1)); // Run body.
+        rec_run_ast(get_child(ast, 0)); // Run test.
+        again = pop();
     }
 }
 
@@ -106,21 +116,34 @@ void run_assign(AST *ast) {
     store(var_idx, pop());
 }
 
-void run_read(AST *ast) {
-    trace("read");
+void run_input(AST *ast) {
+    trace("input");
     int x;
-    printf("read: ");
+    printf("input: ");
     scanf("%d", &x);
-    AST *child = get_child(ast, 0);
-    int var_idx = ast_get_data(child);
-    store(var_idx, x);
+    push(x);
+}
+
+void removeSubstring(char *s,const char *toremove)
+{
+  while( s=strstr(s,toremove) )
+    memmove(s,s+strlen(toremove),1+strlen(s+strlen(toremove)));
 }
 
 void run_write(AST *ast) {
     trace("write");
+    
+    AST *child = get_child(ast, 0);
+    int index_lt = ast_get_data(child);
+
+    printf("%s", replace(replace(get_literal(lt,index_lt),"\"",""),"\\n","\n"));    
+}
+
+void run_output(AST *ast) {
+    trace("output");
     rec_run_ast(get_child(ast, 0));
-    int x = pop();
-    printf("write: %d\n", x);
+
+    printf("%d", pop());    
 }
 
 #define bin_op() \
@@ -159,10 +182,34 @@ void run_lt(AST *ast) {
     push(l < r);
 }
 
+void run_le(AST *ast) {
+    trace("le");
+    bin_op();
+    push(l <= r);
+}
+
+void run_gt(AST *ast) {
+    trace("gt");
+    bin_op();
+    push(l > r);
+}
+
+void run_ge(AST *ast) {
+    trace("ge");
+    bin_op();
+    push(l >= r);
+}
+
 void run_eq(AST *ast) {
     trace("eq");
     bin_op();
     push(l == r);
+}
+
+void run_neq(AST *ast) {
+    trace("neq");
+    bin_op();
+    push(l != r);
 }
 
 void run_num(AST *ast) {
@@ -170,8 +217,8 @@ void run_num(AST *ast) {
     push(ast_get_data(ast));
 }
 
-void run_id(AST *ast) {
-    trace("id");
+void run_var_use(AST *ast) {
+    trace("var_use");
     int var_idx = ast_get_data(ast);
     push(load(var_idx));
 }
@@ -184,25 +231,31 @@ void recurso(AST *ast){
 
 void rec_run_ast(AST *ast) {
     switch(get_kind(ast)) {
+       /* case VAR_DECL_NODE:
+            run_var_decl(ast);
+            break;
        /* case STMT_SEQ_NODE:
             run_stmt_seq(ast);
             break;*/
-        /*case IF_NODE:
+        case IF_NODE:
             run_if(ast);
-            break;*/
-        /*case REPEAT_NODE:
-            run_repeat(ast);
-            break;*/
-        /*case ASSIGN_NODE:
+            break;
+        case WHILE_NODE:
+            run_while(ast);
+            break;
+        case ASSIGN_NODE:
             run_assign(ast);
             break;
-        case READ_NODE:
-            run_read(ast);
+        case INPUT_NODE:
+            run_input(ast);
+            break;
+        case OUTPUT_NODE:
+            run_output(ast);
             break;
         case WRITE_NODE:
             run_write(ast);
             break;
-        case PLUS_NODE:
+         case PLUS_NODE:
             run_plus(ast);
             break;
         case MINUS_NODE:
@@ -217,14 +270,26 @@ void rec_run_ast(AST *ast) {
         case LT_NODE:
             run_lt(ast);
             break;
+        case LE_NODE:
+            run_le(ast);
+            break;
+        case GT_NODE:
+            run_gt(ast);
+            break;
+        case GE_NODE:
+            run_ge(ast);
+            break;
         case EQ_NODE:
             run_eq(ast);
             break;
+        case NEQ_NODE:
+            run_neq(ast);
+            break;
        case NUM_NODE:
             run_num(ast);
-            break;*/
-        case ID_NODE:
-            run_id(ast);
+            break;
+        case VAR_USE_NODE:
+            run_var_use(ast);
             break;
         default:
             //fprintf(stderr, "Invalid kind: %s!\n", kind2str(get_kind(ast)));
