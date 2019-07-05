@@ -2,7 +2,6 @@
 
 void main(void) {
     int x;
-    x = input();
-    write("x = ");
+    x = 4 + 2;
     output(x);
 }
