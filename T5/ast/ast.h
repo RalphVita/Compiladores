@@ -64,4 +64,6 @@ void print_dot(AST *ast);
 
 void free_tree(AST *ast);
 
+AST * find_func_decl(AST *ast, int index);
+
 #endif

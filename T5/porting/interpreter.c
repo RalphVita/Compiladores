@@ -10,6 +10,7 @@
 extern SymTable *lt;
 extern SymTable* variaveis;
 extern SymTable* funcoes;
+AST *ast_func_list;
 
 // Data stack -----------------------------------------------------------------
 
@@ -45,27 +46,34 @@ void print_stack() {
 
 // Variables memory -----------------------------------------------------------
 
+#define STACK_MEN_SIZE 100
 #define MEM_SIZE 100
+int sp_men;
 
-int mem[MEM_SIZE];
+int mem[STACK_MEN_SIZE][MEM_SIZE];
 
 void store(int addr, int val) {
-    mem[addr] = val;
+    mem[sp_men][addr] = val;
 }
 
 int load(int addr) {
-    return mem[addr];
+    return mem[sp_men][addr];
 }
 
 void init_mem() {
+    sp_men=0;
     for (int addr = 0; addr < MEM_SIZE; addr++) {
-        mem[addr] = 0;
+        for(int stack_men = 0; stack_men < STACK_MEN_SIZE; stack_men++)
+        mem[stack_men][addr] = 0;
     }
 }
 
+void push_men(){sp_men++;}
+void pop_men(){sp_men--;}
+
 // ----------------------------------------------------------------------------
 
-//#define TRACE
+#define TRACE
 #ifdef TRACE
 #define trace(msg) printf("TRACE: %s\n", msg)
 #else
@@ -85,6 +93,42 @@ void run_stmt_seq(AST *ast) {
     for (int i = 0; i < size; i++) {
         rec_run_ast(get_child(ast, i));
     }
+}
+
+void run_func_call(AST *ast){
+    trace("func_call");
+    push_men();
+    int aridade = get_child_count(ast);
+    if(aridade){
+        AST *arg_list = get_child(ast, 0);
+        int size = get_child_count(arg_list);
+        for (int i = 0; i < size; i++) {
+            rec_run_ast(get_child(arg_list, i));
+        }
+    }
+    AST *ast_func_decl = find_func_decl(ast_func_list,ast_get_data(ast));
+    AST *func_header = get_child(ast_func_decl, 0);
+    run_paran_list(get_child(func_header, 1));
+
+    rec_run_ast(get_child(ast_func_decl, 1));
+
+    pop_men();
+
+}
+
+void run_paran_list(AST* ast){
+    trace("param_list");
+    for(int i =0; i< get_child_count(ast);i++){
+        AST *param = get_child(ast, i);
+        int index = ast_get_data(param);
+        int x = pop();
+        store(index,x);
+        printf(" %d ---> %d\n",index,x);
+    }          
+}
+
+void run_return(AST *ast){
+
 }
 
 void run_if(AST *ast) {
@@ -117,18 +161,20 @@ void run_assign(AST *ast) {
 }
 
 void run_input(AST *ast) {
+    char read[100] = "";
+    //fflush(stdin);
+    
+    int z = scanf("%c", &read);
+    printf("\n---%s---\n",read);
+
     trace("input");
     int x;
-    printf("input: ");
+    
+    printf("input: %d\n\n", z);
     scanf("%d", &x);
     push(x);
 }
 
-void removeSubstring(char *s,const char *toremove)
-{
-  while( s=strstr(s,toremove) )
-    memmove(s,s+strlen(toremove),1+strlen(s+strlen(toremove)));
-}
 
 void run_write(AST *ast) {
     trace("write");
@@ -221,6 +267,7 @@ void run_var_use(AST *ast) {
     trace("var_use");
     int var_idx = ast_get_data(ast);
     push(load(var_idx));
+    printf(" %d -> %d\n",var_idx,load(var_idx));
 }
 
 void recurso(AST *ast){
@@ -236,6 +283,12 @@ void rec_run_ast(AST *ast) {
             break;
        /* case STMT_SEQ_NODE:
             run_stmt_seq(ast);
+            break;*/
+        case FUNC_CALL_NODE:
+            run_func_call(ast);
+            break;
+        /* case RETURN_NODE:
+            run_return(ast);
             break;*/
         case IF_NODE:
             run_if(ast);
@@ -301,5 +354,13 @@ void rec_run_ast(AST *ast) {
 void run_ast(AST *ast) {
     init_stack();
     init_mem();
-    rec_run_ast(ast);
+
+    //Cabeça da arvore, para buscar funções chamadas
+    ast_func_list = ast;
+
+    //Init Main
+    int index = lookup_var(funcoes,"main");
+    AST *main = find_func_decl(ast,index);
+
+    rec_run_ast(main);
 }

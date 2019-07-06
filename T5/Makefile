@@ -1,4 +1,4 @@
-File=c03
+File=c12
 Exec=trab5
 FolderOut=test/out4
 FolderAst=test/ast

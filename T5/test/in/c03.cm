@@ -2,6 +2,6 @@
 
 void main(void) {
     int x;
-    x = 4 + 2;
+    x = 2 + 4;
     output(x);
 }

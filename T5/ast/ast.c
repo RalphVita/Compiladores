@@ -6,12 +6,13 @@
 #include "ast.h"
 
 #define CHILDREN_LIMIT 20
-
+int has_data(NodeKind kind);
 struct node {
     NodeKind kind;
     int data;
     int count;
     AST* child[CHILDREN_LIMIT]; // Don't try this at home, kids... :P
+    AST* parent;
 };
 
 AST* new_node(NodeKind kind, int data) {
@@ -30,6 +31,7 @@ void add_child(AST *parent, AST *child) {
         fprintf(stderr, "Cannot add another child!\n");
         exit(1);
     }
+    child->parent = parent;
     parent->child[parent->count] = child;
     parent->count++;
 }
@@ -121,6 +123,23 @@ void print_node(AST *node, int level) {
 
 void print_tree(AST *tree) {
     print_node(tree, 0);
+}
+
+AST* find_node(AST *ast,NodeKind kind,int data){
+    if (ast == NULL) return NULL;
+    if(ast->kind == kind && (ast->data == data || !has_data(kind)))
+        return ast;
+    AST *r;
+    for (int i = 0; i < ast->count; i++){
+        r = find_node(ast->child[i],kind,data);
+        if(r!= NULL)
+            return r;
+    }
+    return NULL;
+}
+
+AST * find_func_decl(AST *ast, int index){
+    return find_node(ast,FUNC_NAME_NODE, index)->parent->parent;
 }
 
 void free_tree(AST *tree) {
