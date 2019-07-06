@@ -1,7 +1,14 @@
 // Another silly test program.
 
 void main(void) {
-    int x;
-    x = 2 + 4;
-    output(x);
+    int x[10];
+    int i;
+    i = 0;
+    while (i < 10) {
+        x[i] = i;
+        output(x[i]);
+        i = i + 1;
+        
+    }
+    
 }

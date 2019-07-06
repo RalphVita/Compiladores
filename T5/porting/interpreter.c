@@ -50,21 +50,28 @@ void print_stack() {
 #define MEM_SIZE 100
 int sp_men;
 
-int mem[STACK_MEN_SIZE][MEM_SIZE];
+int *mem[STACK_MEN_SIZE][MEM_SIZE];
 
-void store(int addr, int val) {
-    mem[sp_men][addr] = val;
+void store(int addr,int index, int val) {
+    mem[sp_men][addr][index] = val;
 }
 
-int load(int addr) {
+int *get_pointer(int addr){
     return mem[sp_men][addr];
+}
+void set_pointer(int addr, int *point){
+    //free(mem[sp_men][addr]);
+    mem[sp_men][addr] = point;
+}
+int load(int addr,int index) {
+    return mem[sp_men][addr][index];
 }
 
 void init_mem() {
     sp_men=0;
     for (int addr = 0; addr < MEM_SIZE; addr++) {
         for(int stack_men = 0; stack_men < STACK_MEN_SIZE; stack_men++)
-        mem[stack_men][addr] = 0;
+        mem[stack_men][addr] = malloc (100 * sizeof (int));
     }
 }
 
@@ -73,7 +80,7 @@ void pop_men(){sp_men--;}
 
 // ----------------------------------------------------------------------------
 
-#define TRACE
+//#define TRACE
 #ifdef TRACE
 #define trace(msg) printf("TRACE: %s\n", msg)
 #else
@@ -95,17 +102,51 @@ void run_stmt_seq(AST *ast) {
     }
 }
 
+void run_copy_var_use(AST* ast){
+    trace("copy_var_use");
+    int var_idx = ast_get_data(ast);
+    
+    Variavel* v = (Variavel*)get_data(variaveis,var_idx);
+
+    int size = v->tamanho == 0 ? 1 : v->tamanho;
+    for (size_t i = 0; i < size; i++)
+    {
+        run_var_use(ast);
+    }
+    
+    /* if(get_child_count(ast) > 0){
+        rec_run_ast(get_child(ast,0));
+        int value = pop();
+        push(load(var_idx,value));
+        //printf("Load Adr: %d, index:%d -> Value:%d\n",var_idx,value,load(var_idx,value));
+    }
+    else
+    {
+        push(load(var_idx,0));
+    }*/
+    push(v->tamanho);
+}
+
 void run_func_call(AST *ast){
     trace("func_call");
-    push_men();
+    
     int aridade = get_child_count(ast);
     if(aridade){
         AST *arg_list = get_child(ast, 0);
         int size = get_child_count(arg_list);
         for (int i = 0; i < size; i++) {
-            rec_run_ast(get_child(arg_list, i));
+            AST *param = get_child(arg_list, i); 
+            //if(get_kind(param) != VAR_USE_NODE){
+                rec_run_ast(param);
+                
+              //  push(0);
+            //}
+            //else
+              //  run_copy_var_use(param);
+            
         }
     }
+    push_men();
     AST *ast_func_decl = find_func_decl(ast_func_list,ast_get_data(ast));
     AST *func_header = get_child(ast_func_decl, 0);
     run_paran_list(get_child(func_header, 1));
@@ -118,12 +159,41 @@ void run_func_call(AST *ast){
 
 void run_paran_list(AST* ast){
     trace("param_list");
-    for(int i =0; i< get_child_count(ast);i++){
+    
+    
+    for(int i =get_child_count(ast)-1; i>=0 ;i--){
+        //int size = pop();
         AST *param = get_child(ast, i);
+        Variavel* v = (Variavel*)get_data(variaveis,ast_get_data(param));
+        //v->tamanho = size;
+        
         int index = ast_get_data(param);
-        int x = pop();
-        store(index,x);
-        printf(" %d ---> %d\n",index,x);
+        if(v->tamanho == -1){
+            int *point;
+            pop_men();
+            
+            int x = pop();
+            //point = mem[sp_men][x];
+            //printf("End: %d, escopo %d, %s\n",x,v->escopo,v->name);
+            point = get_pointer(x); 
+            //printf("\nantes %d %d %d\n",load(index,0),load(index,1),load(index,2));
+            ///printf("\npoint %d %d %d\n",*(point+0),*(point+1),*(point +2));
+            push_men();
+            set_pointer(index,point);
+            //printf("\n depois %d %d %d\n",load(index,0),load(index,1),load(index,2));
+        }else{
+        /* if(size > 0)
+        {
+            for (size_t i = 0; i < size; i++)
+            {
+                store(index,i,pop());
+            }
+            
+        }
+        else*/
+
+            store(index,0,pop());}
+        //printf(" %d ---> %d\n",index,x);
     }          
 }
 
@@ -157,7 +227,20 @@ void run_assign(AST *ast) {
     rec_run_ast(get_child(ast, 1));
     AST *child = get_child(ast, 0);
     int var_idx = ast_get_data(child);
-    store(var_idx, pop());
+
+    if(get_child_count(child) > 0){
+        rec_run_ast(get_child(child, 0));
+        int index = pop();
+        int value = pop();
+        store(var_idx,index, value);
+        //printf("store adr:%d, index:%d -> value:%d\n",var_idx,index,value);
+    }else
+    {
+        store(var_idx,0, pop());
+    }
+    
+
+    //store(var_idx, pop());
 }
 
 void run_input(AST *ast) {
@@ -266,8 +349,29 @@ void run_num(AST *ast) {
 void run_var_use(AST *ast) {
     trace("var_use");
     int var_idx = ast_get_data(ast);
-    push(load(var_idx));
-    printf(" %d -> %d\n",var_idx,load(var_idx));
+    
+    
+    Variavel* v = (Variavel*)get_data(variaveis,var_idx);
+    if(get_child_count(ast) > 0){
+        rec_run_ast(get_child(ast,0));
+        int value = pop();
+        push(load(var_idx,value));
+        //printf("Load Adr: %d, index:%d -> Value:%d\n",var_idx,value,load(var_idx,value));
+    }
+    else
+    {
+        //variavel passa por cópia
+        if(v->tamanho == 0)
+            push(load(var_idx,0));
+        else//vetor passa por referencia
+        {
+            push(var_idx);
+            //printf(" passagem %d\n",var_idx);
+        }
+            
+    }
+    
+    //printf(" %d -> %d\n",var_idx,v->tamanho);
 }
 
 void recurso(AST *ast){

@@ -11,6 +11,7 @@ struct variavel{
   int line;
   int escopo;
   int tamanho;
+  int posicao;
 };
 
 //Tabela de variaveis
