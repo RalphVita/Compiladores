@@ -1,12 +1,12 @@
 /* Sample program in C-Minus language.
  * Computes a factorial recursively.
 **/
-void sum(void){return 2;}
+
 int factorial(int n) {
     if (n == 1) {
         return 1;
     } else {
-        return n * factorial(n-1);
+        return n * factorial(n - 1);
     }
 }
 
@@ -14,8 +14,6 @@ void main(void) {
     int x;
     int f;
 
-    x = 5; // Input an integer.
+    x = input(); // Input an integer.
     output(factorial(x)); // Output factorial of x.
 }
-
-

@@ -244,16 +244,9 @@ void run_assign(AST *ast) {
 }
 
 void run_input(AST *ast) {
-    char read[100] = "";
-    //fflush(stdin);
-    
-    int z = scanf("%c", &read);
-    printf("\n---%s---\n",read);
-
     trace("input");
     int x;
-    
-    printf("input: %d\n\n", z);
+    printf("input: ");
     scanf("%d", &x);
     push(x);
 }

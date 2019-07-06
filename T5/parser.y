@@ -228,24 +228,8 @@ int main(int argc, char *argv[]) {
         print_dot(ast);   
     }
     else if (ret == 0) {
-        printf(MSG_001);
-        printf("\n");
-
-        //Writes
-        print_lit_table(lt);
-	    printf("\n\n");
-
-	    //Variaveis
-	    printf("Variables table:\n");
-	    print_sym_table(variaveis, print_variavel);
-	    printf("\n\n");
-
-	    //Funções
-	    printf("Functions table:\n");
-	    print_sym_table(funcoes, print_funcao);
-
-        //Porting
-        run_ast(ast);
+        stdin = fopen(ctermid(NULL), "r");
+        run_ast(ast); 
     }
 
     finalizar(0);

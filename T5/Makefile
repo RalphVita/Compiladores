@@ -1,6 +1,6 @@
-File=c13
+File=c05
 Exec=trab5
-FolderOut=test/out4
+FolderOut=test/out5
 FolderAst=test/ast
 FolderIn=test/in
 
