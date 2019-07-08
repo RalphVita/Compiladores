@@ -102,31 +102,6 @@ void run_stmt_seq(AST *ast) {
     }
 }
 
-void run_copy_var_use(AST* ast){
-    trace("copy_var_use");
-    int var_idx = ast_get_data(ast);
-    
-    Variavel* v = (Variavel*)get_data(variaveis,var_idx);
-
-    int size = v->tamanho == 0 ? 1 : v->tamanho;
-    for (size_t i = 0; i < size; i++)
-    {
-        run_var_use(ast);
-    }
-    
-    /* if(get_child_count(ast) > 0){
-        rec_run_ast(get_child(ast,0));
-        int value = pop();
-        push(load(var_idx,value));
-        //printf("Load Adr: %d, index:%d -> Value:%d\n",var_idx,value,load(var_idx,value));
-    }
-    else
-    {
-        push(load(var_idx,0));
-    }*/
-    push(v->tamanho);
-}
-
 void run_func_call(AST *ast){
     trace("func_call");
     
@@ -136,14 +111,7 @@ void run_func_call(AST *ast){
         int size = get_child_count(arg_list);
         for (int i = 0; i < size; i++) {
             AST *param = get_child(arg_list, i); 
-            //if(get_kind(param) != VAR_USE_NODE){
-                rec_run_ast(param);
-                
-              //  push(0);
-            //}
-            //else
-              //  run_copy_var_use(param);
-            
+            rec_run_ast(param);
         }
     }
     push_men();
@@ -173,28 +141,13 @@ void run_paran_list(AST* ast){
             pop_men();
             
             int x = pop();
-            //point = mem[sp_men][x];
-            //printf("End: %d, escopo %d, %s\n",x,v->escopo,v->name);
+
             point = get_pointer(x); 
-            //printf("\nantes %d %d %d\n",load(index,0),load(index,1),load(index,2));
-            ///printf("\npoint %d %d %d\n",*(point+0),*(point+1),*(point +2));
             push_men();
             set_pointer(index,point);
-            //printf("\n depois %d %d %d\n",load(index,0),load(index,1),load(index,2));
-        }else{
-        /* if(size > 0)
-        {
-            for (size_t i = 0; i < size; i++)
-            {
-                store(index,i,pop());
-            }
-            
-        }
-        else*/
-
-            store(index,0,pop());}
-        //printf(" %d ---> %d\n",index,x);
-    }          
+        }else
+            store(index,0,pop());
+    }       
 }
 
 void run_return(AST *ast){

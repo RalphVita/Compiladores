@@ -1,4 +1,6 @@
-#!/bin/bash
-num=5
-./trab5 < ./test/in/c05.cm
-$num
+#!/usr/bin/expect -f
+
+spawn ./trab5 < ./test/in/c05.cm
+expect "%"
+send "5\r"
+
