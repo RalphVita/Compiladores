@@ -60,7 +60,6 @@ int *get_pointer(int addr){
     return mem[sp_men][addr];
 }
 void set_pointer(int addr, int *point){
-    //free(mem[sp_men][addr]);
     mem[sp_men][addr] = point;
 }
 int load(int addr,int index) {
@@ -105,6 +104,7 @@ void run_stmt_seq(AST *ast) {
 void run_func_call(AST *ast){
     trace("func_call");
     
+    //Carrega argumentos na pilha
     int aridade = get_child_count(ast);
     if(aridade){
         AST *arg_list = get_child(ast, 0);
@@ -114,44 +114,46 @@ void run_func_call(AST *ast){
             rec_run_ast(param);
         }
     }
+    //Adciona um novo frame de memória
     push_men();
     AST *ast_func_decl = find_func_decl(ast_func_list,ast_get_data(ast));
     AST *func_header = get_child(ast_func_decl, 0);
+    //Atribui os argumestos aos parametros
     run_paran_list(get_child(func_header, 1));
 
+    //Executa a função
     rec_run_ast(get_child(ast_func_decl, 1));
 
+    //Remove frame de memória
     pop_men();
 
 }
 
+//Aqui cada pop(), tira da pilha, um argumento passado como parametro
 void run_paran_list(AST* ast){
     trace("param_list");
-    
-    
+  
     for(int i =get_child_count(ast)-1; i>=0 ;i--){
-        //int size = pop();
         AST *param = get_child(ast, i);
         Variavel* v = (Variavel*)get_data(variaveis,ast_get_data(param));
-        //v->tamanho = size;
         
         int index = ast_get_data(param);
+        //Passagem por referência. Quando é um vetor
         if(v->tamanho == -1){
             int *point;
+            //Volta na memória donde vem a refencia
             pop_men();
-            
+            //Endereço do parametro
             int x = pop();
-
+            //Ponteiro do enderoço
             point = get_pointer(x); 
+            //Volta na memória
             push_men();
+            //Seta o ponteiro da memória anterior, no mesmo endereço da memória atual
             set_pointer(index,point);
-        }else
+        }else//Caso seja passagem por cópia
             store(index,0,pop());
     }       
-}
-
-void run_return(AST *ast){
-
 }
 
 void run_if(AST *ast) {
@@ -181,19 +183,14 @@ void run_assign(AST *ast) {
     AST *child = get_child(ast, 0);
     int var_idx = ast_get_data(child);
 
+    //Caso seja do tipo: x[i]
     if(get_child_count(child) > 0){
         rec_run_ast(get_child(child, 0));
         int index = pop();
         int value = pop();
         store(var_idx,index, value);
-        //printf("store adr:%d, index:%d -> value:%d\n",var_idx,index,value);
     }else
-    {
         store(var_idx,0, pop());
-    }
-    
-
-    //store(var_idx, pop());
 }
 
 void run_input(AST *ast) {
