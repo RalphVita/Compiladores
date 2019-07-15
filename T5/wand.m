@@ -1,0 +1,26 @@
+JMP 1
+IN  r11
+STO r11, 1
+LDC r12, 0
+LDA r13, 1
+SUB r14, r13, r12
+JON r14, 19
+LDC r15, 1
+STO r15, 3
+LDC r16, 0
+LDA r17, 1
+SUB r18, r17, r16
+JNZ r18, 2
+JON r18, 10
+LDA r19, 1
+LDA r20, 3
+MUL r21, r20, r19
+STO r21, 3
+LDC r22, 1
+LDA r23, 1
+SUB r24, r23, r22
+STO r24, 1
+JMP 9
+LDA r25, 3
+OUT r25
+HLT

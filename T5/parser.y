@@ -19,7 +19,8 @@
 #include "./entity/funcao.h"
 #include "./ast/ast.h"
 #include "menssagem.h"
-#include "./porting/interpreter.h"
+#include "./porting/interpreter/interpreter.h"
+#include "./porting/compiler/code.h"
 
 int yylex();
 void yyerror(const char *s);
@@ -229,7 +230,8 @@ int main(int argc, char *argv[]) {
     }
     else if (ret == 0) {
         stdin = fopen(ctermid(NULL), "r");
-        run_ast(ast); 
+        //run_ast(ast); 
+        emit_code(ast);
     }
 
     finalizar(0);

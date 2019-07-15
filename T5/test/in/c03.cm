@@ -1,7 +1,51 @@
 // Another silly test program.
 
+int ok2(int z[]){
+	int i;
+	 i=0;
+    while(i < 5){
+    	output(z[i]);
+    	z[i] = i;
+    	i = i + 1;
+    }
+}
+
+int ok(int z[]){
+	int i;
+	 i=0;
+    while(i < 2){
+    	ok2(z);
+    	output(z[i]);
+    	i = i + 1;
+    }
+    
+}
+
 void main(void) {
-    int x;
-    x = 4 + 2;
-    output(x);
+    int x[10];
+    int i;
+    x[0] = 45;
+    x[1] = 46;
+    x[2] = 47;
+    x[3] = 48;
+    x[4] = 49;
+    
+    i=0;
+    while(i < 5){
+    	output(x[i]);
+    	i = 1 + i;
+    }
+    
+    i=0;
+    while(i < 5){
+    	output(x[i]);
+    	i = 1 + i;
+    }
+    
+    /*ok(x);
+    i=0;
+    while(i < 5){
+    	output(x[i]);
+    	i = i + 1;
+    }*/
 }

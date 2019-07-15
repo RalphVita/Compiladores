@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "interpreter.h"
-#include "../hash/tables.h"
-#include "../entity/funcao.h"
-#include "../entity/variavel.h"
-#include "../util/string_util.h"
+#include "../../hash/tables.h"
+#include "../../entity/funcao.h"
+#include "../../entity/variavel.h"
+#include "../../util/string_util.h"
 
 extern SymTable *lt;
 extern SymTable* variaveis;

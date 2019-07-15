@@ -99,10 +99,9 @@ void* last_data(SymTable* st){
 	return st->t[st->size - 1].data;
 }
 
-void print_sym_table(SymTable* st, void call_Print(void*,int)) {
+void each_sym_table(SymTable* st, void call_item_symboltable(void*,int)) {
     for (int i = 0; i < st->size; i++) {
-         //printf("Entry %d -- name: %s, line: \n", i, get_name(st, i)/*, get_line(st, i)*/);
-         call_Print(get_data(st, i),i);
+         call_item_symboltable(get_data(st, i),i);
     }
 }
 

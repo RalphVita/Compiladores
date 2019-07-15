@@ -1,4 +1,4 @@
-File=c13
+File=c03
 Exec=trab5
 FolderOut=test/out5
 FolderAst=test/ast
@@ -12,11 +12,14 @@ bison: parser.y
 flex: scanner.l
 	flex scanner.l
 
-gcc: menssagem.h ./ast/ast.h ./entity/funcao.h ./entity/variavel.h ./hash/tables.c ./porting/interpreter.h scanner.c parser.c
-	gcc -Wall -w -o $(Exec) ./ast/ast.c ./entity/funcao.c ./entity/variavel.c ./hash/tables.c ./porting/interpreter.c scanner.c parser.c -ly -lm
+gcc: menssagem.h ./ast/ast.h ./entity/funcao.h ./entity/variavel.h ./hash/tables.c ./porting/interpreter/interpreter.h ./porting/compiler/code.h scanner.c parser.c
+	gcc -Wall -w -o $(Exec) ./ast/ast.c ./entity/funcao.c ./entity/variavel.c ./hash/tables.c ./porting/interpreter/interpreter.c ./porting/compiler/code.c scanner.c parser.c -ly -lm
 
 run:
 	./$(Exec) < ./$(FolderIn)/$(File).cm
+
+runc:
+	./$(Exec) < ./$(FolderIn)/$(File).cm > wand.m
 
 ast: all
 	./$(Exec) -d < ./$(FolderIn)/$(File).cm
@@ -42,6 +45,9 @@ loop:
 	$(foreach f, $(sort $(wildcard ./$(FolderIn)/*.cm)), \
 	echo $(notdir $(basename $f));\
 	./$(Exec) < ./$(FolderIn)/$(notdir $(basename $f)).cm | diff ./$(FolderOut)/$(notdir $(basename $f)).out -;)
+
+tm: tm.c
+	gcc -Wall -o tmsim tm.c
 
 up: clean
 	git add .
