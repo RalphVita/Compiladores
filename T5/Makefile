@@ -37,7 +37,7 @@ dot_loop:
 	./$(Exec) -d < ./$(FolderIn)/$(notdir $(basename $f)).cm | diff ./$(FolderAst)/$(notdir $(basename $f)).dot -;)
 
 clean:
-	rm -f *.out *.dot *.pdf scanner.c parser.h parser.c $(Exec)
+	rm -f *.out *.dot *.pdf scanner.c parser.h parser.c tmsim $(Exec)
 
 diff:
 	./$(Exec) < ./$(FolderIn)/$(File).cm | diff ./$(FolderOut)/$(File).out -

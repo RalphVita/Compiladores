@@ -75,9 +75,7 @@ static int OpCount[] =
   2, // JON
   2, // JNZ
   1, // JMP
-  1, // JR
-  1, // PUSHM
-  1  // POPM
+  1  // JR
 };
 
 bool read_line(char *line) {
@@ -129,10 +127,6 @@ OpCode get_opcode(char *line) {
         if (line[1] == 'U' && line[2] == 'B') return SUB;
         else if (line[1] == 'T' && line[2] == 'O') return STO;
         else parse_error(line, OP_ERR);
-    } else if (line[0] == 'P'){
-        if(line[1] == 'U' && line[2] == 'S' && line[3] == 'H' && line[4] == 'M') return PUSHM;
-        else if(line[1] == 'O' && line[2] == 'P' && line[3] == 'M') return POPM;
-        else parse_error(line, OP_ERR);
     } else parse_error(line, OP_ERR);
     return HLT; // Dummy return, should never be reached.
 }
@@ -152,18 +146,12 @@ void read_params(char *line, OpCode op, int *i1, int *i2, int *i3) {
 
     if (op == IN || op == JR) {
         line += 2;
-    }else if(op == PUSHM) {
-        line += 5;
-    }
-    else if(op == POPM) {
-        line += 4;
-    }
-    else {
+    }else {
         line += 3;
     }
 
     eat_space();
-    if (op == JMP || op == PUSHM || op == POPM) {
+    if (op == JMP) {
         sscanf(line, "%d%n", i1, &consumed);
     } else {
         sscanf(line, "r%d%n", i1, &consumed);
@@ -235,7 +223,7 @@ void get_instruction_string(Instruction instr, char *s) {
 
     if (op == IN || op == OUT || op == JR) {
         sprintf(s, " r%d", instr.i1);
-    } else if (op == JMP || op == PUSHM || op == POPM) {
+    } else if (op == JMP) {
         sprintf(s, " %d", instr.i1);
     } else if (op == ADD || op == SUB || op == MUL || op == DIV) {
         sprintf(s, " r%d, r%d, r%d", instr.i1, instr.i2, instr.i3);
@@ -375,18 +363,6 @@ StepResult run_jr(Instruction instr) {
     return OKAY;
 }
 
-StepResult run_pushm(Instruction instr) {
-    ofset+= instr.i1;
-    inc_PC();
-    return OKAY;
-}
-
-StepResult run_popm(Instruction instr) {
-    ofset-= instr.i1;
-    inc_PC();
-    return OKAY;
-}
-
 #define TRACE
 
 StepResult step() {
@@ -414,8 +390,6 @@ StepResult step() {
         case JNZ: return run_jnz(instr);
         case JMP: return run_jmp(instr);
         case JR: return run_jr(instr);
-        case PUSHM: return run_pushm(instr);
-        case POPM: return run_popm(instr);
         default:  return OKAY; // Dummy return, should not be reached.
     }
 }

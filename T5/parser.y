@@ -230,8 +230,11 @@ int main(int argc, char *argv[]) {
     }
     else if (ret == 0) {
         stdin = fopen(ctermid(NULL), "r");
-        //run_ast(ast); 
-        emit_code(ast);
+        
+        if(ArgsHas(argv, argc, "-c")) 
+            emit_code(ast);
+        else
+            run_ast(ast);
     }
 
     finalizar(0);

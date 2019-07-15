@@ -16,14 +16,12 @@ typedef enum {
     JON,    // Jump On Negative (or zero)
     JNZ,    // Jump on Not Zero
     JMP,    // Unconditional jump
-    JR,
-    PUSHM,
-    POPM
+    JR
 } OpCode;
 
 static char* OpStr[] =
 { "HLT", "IN ", "OUT", "ADD", "SUB", "MUL", "DIV",
-  "LDA", "LDC", "STO", "JON", "JNZ", "JMP", "JR", "PUSHM", "POPM" };
+  "LDA", "LDC", "STO", "JON", "JNZ", "JMP", "JR" };
 
 #define IADDR_SIZE  1024 /* increase for large programs */
 #define DADDR_SIZE  1024 /* increase for large programs */

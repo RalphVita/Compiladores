@@ -1,7 +1,7 @@
 Fluxo Normal:
 
-$ ./trab4 < program.cm
+$ ./trab5 < program.cm
 
-Imprime a AST:
+Gera código Assembly:
 
-$ ./trab4 -d < program.cm
+$ ./trab5 -d < program.cm

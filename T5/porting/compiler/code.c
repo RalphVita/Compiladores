@@ -89,11 +89,6 @@ void print_instruction(int i) {
         return;
     }
 
-    if (op == PUSHM || op == POPM) {
-        printf(" %d\n", i1);
-        return;
-    }
-
     // Three args instructions with registers
     if (op == ADD || op == SUB || op == MUL || op == DIV) {
         printf(" r%d, r%d, r%d\n", i1, i2, i3);
