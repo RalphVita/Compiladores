@@ -118,7 +118,15 @@ void print_code() {
 int temp_count;
 
 #define new_temp() \
-    temp_count = temp_count == 49 ? 11 : temp_count + 1;
+    temp_count = temp_count == 63 ? 21 : temp_count + 1;
+
+//R0 = 0
+//R1 = Salva donde veio, para retornar
+//R2 = Armazena o valor de return
+//R3 = Usado para auxiliar troca
+//R5 = Increment de OffSet
+//R10 = OffSet da memória
+int r0 = 0, r1=1, r2 = 2, r3 = 3, r4 = 4,r5 = 5, r10 = 10;
 
 //-------------------Memory----------------
 typedef struct{
@@ -141,14 +149,12 @@ void push_mem(int size){
     frames[stack].offset = frames[stack-1].end + 1;
     frames[stack].end = frames[stack].offset + size + 20;
     
-    //emit1(PUSHM,50);
-    emit3(ADD,60,60,61);
+    emit3(ADD,r10,r10,r5);
 }
 
 void pop_mem(){
     stack--;
-    //emit1(POPM,50);
-    emit3(SUB,60,60,61);
+    emit3(SUB,r10,r10,r5);
 }
 
 int getOffSet(){
@@ -182,8 +188,8 @@ int emit_func_dec(AST *ast){
     //Main não salva donde veio pois vem do além
     if(index_main != func_atual){
         push_mem(func_size_memory[func_idex]);
-    //Salva donde veio
-    emit2(STO, 0, getOffSet());//func_size_memory[func_idex]);
+    //Salva donde veio r1
+    emit2(STO, r1, getOffSet());//func_size_memory[func_idex]);
     }
 
     //Atribui os argumestos aos parametros
@@ -201,9 +207,9 @@ int emit_func_dec(AST *ast){
     //Main não retorna donde veio senão vira um loop infinito
     if(index_main != func_atual){
     //Retorna donde veio
-    emit2(LDA, 0, getOffSet());//func_size_memory[func_idex]);
+    emit2(LDA, r1, getOffSet());//func_size_memory[func_idex]);
     pop_mem();
-    emit1(JR,0);
+    emit1(JR,r1);
     }
     //else pop_mem();
 
@@ -214,7 +220,9 @@ int emit_func_dec(AST *ast){
 int emit_func_call(AST *ast){
     
     int save_temp = temp_count;
-    temp_count = 1;
+    //Argumetos são passsados por r11 até r20
+    temp_count = 11;
+    int r_offset = 11;
     //Carrega argumentos na pilha
     int aridade = get_child_count(ast);
     if(aridade){
@@ -223,43 +231,27 @@ int emit_func_call(AST *ast){
         for (int i = 0; i < size; i++) {
             AST *param = get_child(arg_list, i); 
             int r = rec_emit_code(param);
-            emit2(LDA,0,0);
+            emit2(LDA,r3,0);
             emit2(STO,r,0);
-            emit2(LDA,i+1,0);
-            emit2(STO,0,0);
+            emit2(LDA,i+r_offset,0);
+            emit2(STO,r3,0);
         }
     }
 
     temp_count = save_temp;
-    //Salva posição de retorno em r0
-    emit2(LDC, 0, instruction_count+2);
+    //Salva posição de retorno em r1
+    emit2(LDC, r1, instruction_count+2);
 
     //Go to função
     emit1(JMP,func_row[ast_get_data(ast)]);
 
-    //Return é salvo em r1
-    return 1;
-    /* 
-    //func_atual = ast_get_data(ast);
-    //Adciona um novo frame de memória
-    //push_men();
-    AST *ast_func_decl = find_func_decl(ast_func_list,ast_get_data(ast));
-    AST *func_header = get_child(ast_func_decl, 0);
-    //Atribui os argumestos aos parametros
-    run_paran_list(get_child(func_header, 1));
-
-    //Executa a função
-    rec_run_ast(get_child(ast_func_decl, 1));
-
-    //Remove frame de memória
-    pop_men();
-*/
+    //Return é salvo em r2
+    return r2;
 }
 
-//Aqui cada pop(), tira da pilha, um argumento passado como parametro
 int emit_paran_list(AST* ast){
-    //trace("param_list");
-  
+    //Argumetos são passsados por r11 até r20
+    int r_offset = 11;
     for(int i =get_child_count(ast)-1; i>=0 ;i--){
         AST *param = get_child(ast, i);
         Variavel* v = (Variavel*)get_data(variaveis,ast_get_data(param));
@@ -270,28 +262,13 @@ int emit_paran_list(AST* ast){
 
         //Passagem por referência. Quando é um vetor
         if(v->tamanho == -1){
-            //emit1(OUT,i+1);
-            /* int *point;
-            //Volta na memória donde vem a refencia
-            pop_men();
-            //Endereço do parametro
-            int x = pop();
-            //Ponteiro do enderoço
-            point = get_pointer(x); 
-            //Volta na memória
-            push_men();
-            //Seta o ponteiro da memória anterior, no mesmo endereço da memória atual
-            set_pointer(index,point);
-            */
            int a = getOffSet() + index + 1;
-           emit2(STO, i+1, a);
+           emit2(STO, i+r_offset, a);
         }else//Caso seja passagem por cópia
-          {
-              //store(index,0,pop());
-            //int a = func_size_memory[v->escopo]+index + 1;
-            int a = getOffSet() + index + 1;
-            emit2(STO, i+1, a);
-          }  
+        {
+        int a = getOffSet() + index + 1;
+        emit2(STO, i+r_offset, a);
+        }  
     }       
 }
 
@@ -321,13 +298,15 @@ int emit_if(AST *ast) {
     // Backpatch test.
     if (get_kind(test) == EQ_NODE) {
         backpatch(cond_jump_instr, JNZ, result, false_branch_start - true_branch_start + 1);
-    } else if (get_kind(test) == LT_NODE || get_kind(test) == GT_NODE) {
+    }//GT é o inverso de LT 
+    else if (get_kind(test) == LT_NODE || get_kind(test) == GT_NODE) {
         backpatch(cond_jump_instr, JON, result, false_branch_start - true_branch_start + 1);
-    } else if (get_kind(test) == LE_NODE || get_kind(test) == GE_NODE) {
+    }//LE e GE usa uma combinação de JNZ seguido de JON e JON 
+    else if (get_kind(test) == LE_NODE || get_kind(test) == GE_NODE) {
         backpatch(cond_jump_instr, JNZ, result, 2);
         backpatch(cond_jump_instr+1, JON, result, 2);
         backpatch(cond_jump_instr+2, JON, result, false_branch_start - true_branch_start + 1);
-    } 
+    }//NEQ faz um JNZ depois JON 
     else if(get_kind(test) == NEQ_NODE){
         backpatch(cond_jump_instr, JNZ, result, 2);
         backpatch(cond_jump_instr+1, JON, result, false_branch_start - true_branch_start + 1);
@@ -358,13 +337,16 @@ int emit_while(AST *ast) {
 
     if (get_kind(test) == EQ_NODE) {
         emit2(JNZ, result, end_while - after_test +2);
-    } else if (get_kind(test) == LT_NODE  || get_kind(test) == GT_NODE) {
+    }//GT é o inverso de LT 
+     else if (get_kind(test) == LT_NODE  || get_kind(test) == GT_NODE) {
         backpatch(cond_jump_instr, JON, result, end_while - after_test +2);
-    }else if (get_kind(test) == LE_NODE || get_kind(test) == GE_NODE) {
+    }//LE e GE usa uma combinação de JNZ seguido de JON e JON
+    else if (get_kind(test) == LE_NODE || get_kind(test) == GE_NODE) {
         backpatch(cond_jump_instr, JNZ, result, 2);
         backpatch(cond_jump_instr+1, JON, result, 2);
         backpatch(cond_jump_instr+2, JON, result, end_while - after_test +2);
-    }else if(get_kind(test) == NEQ_NODE){
+    }//NEQ faz um JNZ depois JON
+    else if(get_kind(test) == NEQ_NODE){
         backpatch(cond_jump_instr, JNZ, result, 2);
         backpatch(cond_jump_instr+1, JON, result, end_while - after_test + 2);
     } else {
@@ -385,22 +367,19 @@ int emit_assign(AST *ast) {
     //Caso seja do tipo: x[i]
     if(get_child_count(child) > 0){
         int rindex = rec_emit_code(get_child(child, 0));
-        //int index = pop();
-        //int value = pop();
-        //store(var_idx,index, value);
         a+= getOffSet() + 1;
 
         //Referêcia
         if(v->tamanho == - 1){
 
-            emit3(ADD,59,60,58);
-            emit3(SUB,60,60,60);
-            //emit1(OUT,60);
-            /* emit2(LDC,56,1);
-            emit3(SUB,rindex,rindex,56);*/
+            //Zera o offSet de memória para pegar o endereço absoluto
+            emit3(ADD,r3,r10,r0);
+            emit3(SUB,r10,r10,r10);
+
             emit3(STO,r,1,rindex);
-            //emit3(ADD,59,60,58);
-            emit3(ADD,60,60,59);
+
+            //Restaura o OffSet de memória
+            emit3(ADD,r10,r10,r3);
 
         }else
             emit3(STO,r,a,rindex);
@@ -424,6 +403,8 @@ int emit_output(AST *ast) {
 }
 
 //Aqui faço uma verificação de quem tem filhos, e executo primeiro
+//Pois ao carregar um registrador, e chamar uma função recursivamente
+//esse resgistrador pode ser alterado. Então eu carrego registrador depois de fazer a recursão
 #define bin_op() \
     int t,s;\
     if(get_child_count(get_child(ast, 0)) > 0) s = rec_emit_code(get_child(ast, 0));\
@@ -506,7 +487,7 @@ int emit_var_use(AST *ast) {
     Variavel* v = (Variavel*)get_data(variaveis,a);
     a=v->posicao;
 
-    //TODO referencia vetor
+    //x[i]
     if(get_child_count(ast) > 0){
         int rindex = rec_emit_code(get_child(ast,0));
         a+= getOffSet() + 1;
@@ -514,40 +495,19 @@ int emit_var_use(AST *ast) {
         //Referêcia
         if(v->tamanho == -1){
 
-            emit3(ADD,59,60,58);
-            emit3(SUB,60,60,60);
-            //emit1(OUT,60);
-            /* emit2(LDC,56,1);
-            emit3(SUB,rindex,rindex,56);*/
+            //Reseta o OffSet da memória
+            emit3(ADD,r3,r10,r0);
+            emit3(SUB,r10,r10,r10);
+            
+            //Pega o endereço absoluto da variavel
             emit3(LDA,r,1,rindex);
-            //emit3(ADD,59,60,58);
-            emit3(ADD,60,60,59);
-            //emit1(OUT,60);
-        }
-        else{
-        //a+=1;
-        //if(v->tamanho == -1)
-          //  emit1(POPM,50);
-        //emit3(SUB,rindex,rindex,60);
-         //emit3(ADD,59,60,58);
-        //emit3(SUB,60,60,60);
-        //emit1(OUT,60);
-        /* emit2(LDC,56,1);
-        emit3(SUB,rindex,rindex,56);*/
-        emit3(LDA,r,a,rindex);
-        //emit3(ADD,59,60,58);
-        //emit3(ADD,60,60,59);
-        //emit1(OUT,60);
-        /* emit3(ADD,rindex,rindex,56);*/
-        //if(v->tamanho == -1)
-          //  emit1(PUSHM,50);
-        
-        //push(load(var_idx,value));
-        //printf("Load Adr: %d, index:%d -> Value:%d\n",var_idx,value,load(var_idx,value));
-        }
-    }else{
 
-    //a+= func_size_memory[func_atual]+1;
+            //Restaura o OffSet da memória
+            emit3(ADD,r10,r10,r3);
+        }
+        else
+            emit3(LDA,r,a,rindex);
+    }else{
         if(v->tamanho == 0){
             a+= getOffSet() + 1;
             emit2(LDA, r, a);
@@ -556,7 +516,7 @@ int emit_var_use(AST *ast) {
         {
             a+= getOffSet() + 1;
             emit2(LDC, r, a);
-            emit3(ADD,r,r,60);
+            emit3(ADD,r,r,r10);
         }
         
     }
@@ -564,12 +524,8 @@ int emit_var_use(AST *ast) {
 }
 int emit_return(AST *ast) {
     int r = rec_emit_code(get_child(ast,0));
-    //int a = ast_get_data(get_child(ast,0));
-    //a+= func_size_memory[func_atual]+1;
-    //a+=getOffSet() + 1;
-    //emit2(LDA, 1, a);
-    emit3(ADD,1,r,63);
-    //RET
+    //Return é salvo em r2
+    emit3(ADD,r2,r,r0);
     return -1;
 }
 
@@ -584,16 +540,15 @@ int code_recurso(AST *ast){
 
 int rec_emit_code(AST *ast) {
     switch(get_kind(ast)) {
-        //case STMT_SEQ_NODE: return emit_stmt_seq(ast);
         case FUNC_DECL_NODE:    return emit_func_dec(ast);
         case FUNC_CALL_NODE:    return emit_func_call(ast);
         case RETURN_NODE:       return emit_return(ast);
-        case IF_NODE:       return emit_if(ast);
-        case WHILE_NODE:   return emit_while(ast);
-        case WRITE_NODE:    return -1;
-        case ASSIGN_NODE:   return emit_assign(ast);
-        case INPUT_NODE:     return emit_input(ast);
-        case OUTPUT_NODE:    return emit_output(ast);
+        case IF_NODE:           return emit_if(ast);
+        case WHILE_NODE:        return emit_while(ast);
+        case WRITE_NODE:        return -1;
+        case ASSIGN_NODE:       return emit_assign(ast);
+        case INPUT_NODE:        return emit_input(ast);
+        case OUTPUT_NODE:       return emit_output(ast);
         case PLUS_NODE:     return emit_plus(ast);
         case MINUS_NODE:    return emit_minus(ast);
         case TIMES_NODE:    return emit_times(ast);
@@ -603,15 +558,15 @@ int rec_emit_code(AST *ast) {
         case GT_NODE:       return emit_gt(ast);
         case GE_NODE:       return emit_ge(ast);
         case EQ_NODE:       return emit_eq(ast);
-        case NEQ_NODE:       return emit_neq(ast);
+        case NEQ_NODE:      return emit_neq(ast);
         case NUM_NODE:      return emit_num(ast);
         case VAR_USE_NODE:  return emit_var_use(ast);
         default:
-            //fprintf(stderr, "Invalid kind: %s!\n", kind2str(get_kind(ast)));
-            //exit(1);
             return code_recurso(ast);
     }
 }
+
+//Aloca espaço na memória pra cada variavel por escopo
 Variavel *anterior;
 void get_memory_size_funcao(Variavel *v,int index){
     func_size_memory[v->escopo]++;
@@ -627,6 +582,7 @@ void Init(){
     init_func_row();
     func_atual=0;
 
+    //Varre variaveis para inicializar as posições na memória
     each_sym_table(variaveis,get_memory_size_funcao);
 
     init_men(func_size_memory[index_main]);
@@ -638,14 +594,21 @@ void emit_code(AST *ast) {
     
     
 
-    instruction_count = 1;
-    temp_count = 10; // Usable registers start at 0
+    instruction_count = 2;
+    temp_count = 20; // Usable registers start at 20
     rec_emit_code(ast);
     emit0(HLT);
     
     int aux = instruction_count;
+
+    //Set o increment de memória a cada call
     instruction_count = 0;
+    emit2(LDC,r5,50);
+
+    //Inicializa indo para a Mains
+    instruction_count = 1;
     emit1(JMP,func_row[index_main]);
+
     instruction_count = aux;
 
     print_code();

@@ -32,7 +32,7 @@ int reg[NO_REGS];
 int pc;
 int ofset;
 int get_addrs(int addr){
-    return ofset + addr + reg[60];
+    return ofset + addr + reg[10];
 }
 
 // ----------------------------------------------------------------------------
@@ -55,7 +55,6 @@ void init() {
     for (int r = 0; r < NO_REGS; r++) {
         reg[r] = 0;
     }
-    reg[61] = 50;
     pc = 0;
 }
 
@@ -181,20 +180,12 @@ void read_params(char *line, OpCode op, int *i1, int *i2, int *i3) {
         *i3 = -1;
         sscanf(line, "%d%n", i2, &consumed);
         line += consumed;
-        //printf("\n%c\n",*line);
-        //printf("\n%d\n",*(line+1));
+        
         if(*(line) == 40){
-            int r=0;
-            //line++;
-            //printf("\n%c\n",*line);
-            sscanf(line, "(r%d%n)", &r, &consumed);
-            *i3 = r;
-            //*i1 *= reg[r];
-            //printf("\nparent %d\n",r);
+            sscanf(line, "(r%d%n)", i3, &consumed);
             line += consumed;
         }
     }
-    //line += consumed;
 
     if (n == 2) return;
 
