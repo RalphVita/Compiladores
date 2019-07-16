@@ -113,7 +113,7 @@ void print_code() {
 int temp_count;
 
 #define new_temp() \
-    temp_count = temp_count == 63 ? 21 : temp_count + 1;
+    temp_count = temp_count == 63 ? 21 : temp_count + 1; //Ciclo  de r21 à r63
 
 //R0 = 0
 //R1 = Salva donde veio, para retornar

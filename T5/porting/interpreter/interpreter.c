@@ -50,6 +50,9 @@ void print_stack() {
 #define MEM_SIZE 100
 int sp_men;
 
+//Uma espécie de pilha de memória
+//A cada call faz um push_mem e cria um novo frame de memória
+//A cada retorno faz um pop_mem e volta pro frame anterior
 int *mem[STACK_MEN_SIZE][MEM_SIZE];
 
 void store(int addr,int index, int val) {
@@ -74,7 +77,10 @@ void init_mem() {
     }
 }
 
+//A cada call faz um push_mem e cria um novo frame de memória
 void push_men(){sp_men++;}
+
+//A cada retorno faz um pop_mem e volta pro frame anterior
 void pop_men(){sp_men--;}
 
 // ----------------------------------------------------------------------------
@@ -169,7 +175,12 @@ void run_if(AST *ast) {
 
 void run_while(AST *ast) {
     trace("while");
-    int again = 1;
+
+    AST *test = get_child(ast, 0);
+    AST *body = get_child(ast, 1);
+
+    rec_run_ast(test); // Run test.
+    int again = pop();
     while (again) {
         rec_run_ast(get_child(ast, 1)); // Run body.
         rec_run_ast(get_child(ast, 0)); // Run test.
@@ -208,6 +219,7 @@ void run_write(AST *ast) {
     AST *child = get_child(ast, 0);
     int index_lt = ast_get_data(child);
 
+    //Substituis as aspas e o \n por um de verdade
     printf("%s", replace(replace(get_literal(lt,index_lt),"\"",""),"\\n","\n"));    
 }
 
@@ -295,11 +307,11 @@ void run_var_use(AST *ast) {
     
     
     Variavel* v = (Variavel*)get_data(variaveis,var_idx);
+    //Uso de vetor: x[i]
     if(get_child_count(ast) > 0){
         rec_run_ast(get_child(ast,0));
         int value = pop();
         push(load(var_idx,value));
-        //printf("Load Adr: %d, index:%d -> Value:%d\n",var_idx,value,load(var_idx,value));
     }
     else
     {
@@ -309,12 +321,9 @@ void run_var_use(AST *ast) {
         else//vetor passa por referencia
         {
             push(var_idx);
-            //printf(" passagem %d\n",var_idx);
         }
             
     }
-    
-    //printf(" %d -> %d\n",var_idx,v->tamanho);
 }
 
 void recurso(AST *ast){
@@ -325,18 +334,9 @@ void recurso(AST *ast){
 
 void rec_run_ast(AST *ast) {
     switch(get_kind(ast)) {
-       /* case VAR_DECL_NODE:
-            run_var_decl(ast);
-            break;
-       /* case STMT_SEQ_NODE:
-            run_stmt_seq(ast);
-            break;*/
         case FUNC_CALL_NODE:
             run_func_call(ast);
             break;
-        /* case RETURN_NODE:
-            run_return(ast);
-            break;*/
         case IF_NODE:
             run_if(ast);
             break;
@@ -392,8 +392,6 @@ void rec_run_ast(AST *ast) {
             run_var_use(ast);
             break;
         default:
-            //fprintf(stderr, "Invalid kind: %s!\n", kind2str(get_kind(ast)));
-            //exit(1);
             recurso(ast);
     }
 }
