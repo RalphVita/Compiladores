@@ -363,7 +363,7 @@ StepResult run_jr(Instruction instr) {
     return OKAY;
 }
 
-#define TRACE
+//#define TRACE
 
 StepResult step() {
     if (pc < 0 || pc >= IADDR_SIZE) return IMEM_ERR;
@@ -421,7 +421,7 @@ void run() {
 // ----------------------------------------------------------------------------
 // Main -----------------------------------------------------------------------
 
-#define DEBUG
+//#define DEBUG
 
 int main(void) {
     init();
