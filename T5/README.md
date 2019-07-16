@@ -4,7 +4,7 @@ $ ./trab5 < program.cm
 
 ### Gera código Assembly:
 
-$ ./trab5 -d < program.cm
+$ ./trab5 -c < program.cm
 
 ### Obs:
 Para fazer funçoes recusivas e vetores precisei alterar a tm.c
@@ -19,3 +19,5 @@ Para fazer funçoes recusivas e vetores precisei alterar a tm.c
 | ---------     | ---------         |
 | STO ri, a(rj) | dMen[a+rj] <- ri  |
 | LDA ri, a(rj) | ri <- dMen[a+rj]  | 
+
+Write não é convertido pra assembly. 

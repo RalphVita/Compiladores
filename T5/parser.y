@@ -231,9 +231,10 @@ int main(int argc, char *argv[]) {
     else if (ret == 0) {
         stdin = fopen(ctermid(NULL), "r");
         
+        //Gera código assembly
         if(ArgsHas(argv, argc, "-c")) 
             emit_code(ast);
-        else
+        else //Interpreta
             run_ast(ast);
     }
 
