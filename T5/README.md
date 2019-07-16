@@ -7,11 +7,15 @@ $ ./trab5 < program.cm
 $ ./trab5 -d < program.cm
 
 ### Obs:
-Para fazer funçoes recusivas precisei alterar a tm.c
-#### Adicionei a intrunção:
+Para fazer funçoes recusivas e vetores precisei alterar a tm.c
+#### Adicionei a instrunção:
 
-JR ri    -->     PC <- ri
+| Instrução | Efeito   |
+| --------- | ---------|
+| JR ri     | PC <- ri |
 
 #### Alterei as instrunções:
-STO ri, a(rj)   --> dMen[a+rj] <- ri <br/>
-LDA ri, a(rj)   --> ri <- dMen[a+rj]
+| Instrução     | Efeito            |
+| ---------     | ---------         |
+| STO ri, a(rj) | dMen[a+rj] <- ri  |
+| LDA ri, a(rj) | ri <- dMen[a+rj]  | 
